@@ -4,6 +4,12 @@ import RootLayout from "../layouts/RootLayout";
 import AuthLayout from "../layouts/AuthLayout";
 import Login from "../components/auth/Login";
 import Register from "../components/auth/Register";
+import PrivateRoute from "../privateroute/PrivateRoute";
+import DashboardLayout from "../layouts/DashboardLayout";
+import DashboardHome from "../pages/dashboardpages/DashboardHome";
+import Profile from "../pages/dashboardpages/Profile";
+import Users from "../pages/dashboardpages/Users";
+import MyDonations from "../pages/dashboardpages/MyDonations";
 
 
 export const router = createBrowserRouter([
@@ -31,5 +37,19 @@ export const router = createBrowserRouter([
         element:<Register></Register>
       },
     ]
-  }
+  },
+  {
+  path: "/dashboard",
+  element: (
+    <PrivateRoute>
+      <DashboardLayout />
+    </PrivateRoute>
+  ),
+  children: [
+    { index: true, element: <DashboardHome /> },
+    { path: "profile", element: <Profile /> },
+    { path: "users", element: <Users /> }, 
+    { path: "my-donations", element: <MyDonations /> }, 
+  ],
+}
 ]);
