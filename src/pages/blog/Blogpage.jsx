@@ -1,11 +1,11 @@
 import React from 'react';
 
-const RequestBlood = () => {
+const Blogpage = () => {
     return (
         <div>
-            
+            blog
         </div>
     );
 };
 
-export default RequestBlood;
+export default Blogpage;

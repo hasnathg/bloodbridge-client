@@ -1,52 +1,148 @@
 import React from 'react';
 import { NavLink } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
+import {
+  Home,
+  User,
+  Users,
+  FileText,
+  ClipboardList,
+  PlusCircle,
+  LayoutDashboard,
+  NotebookPen,
+} from "lucide-react";
 
 const Sidebar = ({closeSidebar}) => {
     const { role } = useAuth();
 
     const commonLinks = [
-    { name: "Dashboard Home", to: "/dashboard" },
-    { name: "My Profile", to: "/dashboard/profile" },
+    {
+      name: "Dashboard Home",
+      to: "/dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    {
+      name: "My Profile",
+      to: "/dashboard/profile",
+      icon: <User size={18} />,
+    },
   ];
 
   const adminLinks = [
-    { name: "All Users", to: "/dashboard/users" },
-    { name: "Manage Donations", to: "/dashboard/donations" },
+    {
+      name: "All Users",
+      to: "/dashboard/all-users",
+      icon: <Users size={18} />,
+    },
+    {
+      name: "All Donation Requests",
+      to: "/dashboard/all-blood-donation-request",
+      icon: <ClipboardList size={18} />,
+    },
+    {
+      name: "Content Management",
+      to: "/dashboard/content-management",
+      icon: <FileText size={18} />,
+    },
   ];
 
   const donorLinks = [
-    { name: "My Donations", to: "/dashboard/my-donations" },
-    { name: "Request Blood", to: "/dashboard/request" },
+    {
+      name: "My Donation Requests",
+      to: "/dashboard/my-donation-requests",
+      icon: <ClipboardList size={18} />,
+    },
+    {
+      name: "Create Donation Request",
+      to: "/dashboard/create-donation-request",
+      icon: <PlusCircle size={18} />,
+    },
   ];
 
-  const linksToShow = [
-    ...commonLinks,
-    ...(role === "admin" ? adminLinks : []),
-    ...(role === "donor" ? donorLinks : []),
+  const volunteerLinks = [
+    {
+      name: "All Donation Requests",
+      to: "/dashboard/all-blood-donation-request",
+      icon: <ClipboardList size={18} />,
+    },
+    {
+      name: "Content Management",
+      to: "/dashboard/content-management",
+      icon: <NotebookPen size={18} />,
+    },
   ];
+
+  let roleLinks = [];
+  let sectionTitle = "";
+
+  if (role === "admin") {
+    roleLinks = adminLinks;
+    sectionTitle = "Admin Panel";
+  } else if (role === "donor") {
+    roleLinks = donorLinks;
+    sectionTitle = "Donor Panel";
+  } else if (role === "volunteer") {
+    roleLinks = volunteerLinks;
+    sectionTitle = "Volunteer Panel";
+  }
+
 
 
     return (
     <div className="p-4 pt-8">
-      <h2 className="text-xl font-bold mb-4">Dashboard</h2>
-      <ul className="space-y-2">
-        {linksToShow.map((link) => (
-          <li key={link.to}>
-            <NavLink
-              to={link.to}
-              onClick={closeSidebar}
-              className={({ isActive }) =>
-                `block px-3 py-2 rounded hover:bg-gray-200 ${
-                  isActive ? "bg-gray-300 font-semibold" : ""
-                }`
-              }
-            >
-              {link.name}
-            </NavLink>
-          </li>
-        ))}
-      </ul>
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <Home size={20} /> Dashboard
+      </h2>
+
+      {/* Common Links */}
+      <div className="mb-4">
+        <p className="text-sm text-gray-500 mb-2 font-semibold">General</p>
+        <ul className="space-y-1">
+          {commonLinks.map((link) => (
+            <li key={link.to}>
+              <NavLink
+                to={link.to}
+                onClick={closeSidebar}
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-200 ${
+                    isActive ? "bg-gray-300 font-semibold" : ""
+                  }`
+                }
+              >
+                {link.icon}
+                {link.name}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Role-Specific Links */}
+      {roleLinks.length > 0 && (
+        <div>
+          <p className="text-sm text-gray-500 mb-2 font-semibold">
+            {sectionTitle}
+          </p>
+          <ul className="space-y-1">
+            {roleLinks.map((link) => (
+              <li key={link.to}>
+                <NavLink
+                  to={link.to}
+                  onClick={closeSidebar}
+                  className={({ isActive }) =>
+                    `flex items-center gap-2 px-3 py-2 rounded hover:bg-gray-200 ${
+                      isActive ? "bg-gray-300 font-semibold" : ""
+                    }`
+                  }
+                >
+                  {link.icon}
+                  {link.name}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
     );
 };

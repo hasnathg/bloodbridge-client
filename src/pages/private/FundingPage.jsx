@@ -1,11 +1,11 @@
 import React from 'react';
 
-const ManageDonations = () => {
+const FundingPage = () => {
     return (
         <div>
-            
+            funding
         </div>
     );
 };
 
-export default ManageDonations;
+export default FundingPage;

@@ -8,10 +8,18 @@ import PrivateRoute from "../privateroute/PrivateRoute";
 import DashboardLayout from "../layouts/DashboardLayout";
 import DashboardHome from "../pages/dashboardpages/DashboardHome";
 import Profile from "../pages/dashboardpages/Profile";
-import Users from "../pages/dashboardpages/Users";
-import MyDonations from "../pages/dashboardpages/MyDonations";
-import ManageDonations from "../pages/dashboardpages/ManageDonations";
-import RequestBlood from "../pages/dashboardpages/RequestBlood";
+import DonationRequestsPage from "../pages/donation/DonationRequestsPage";
+import Blogpage from "../pages/blog/Blogpage";
+import SearchDonorPage from "../pages/search/SearchDonorPage";
+import AllUsers from "../pages/dashboardpages/admin/AllUsers";
+import AllDonations from "../pages/dashboardpages/admin/AllDonations";
+import ContentManagement from "../pages/dashboardpages/admin/ContentManagement";
+import AddBlog from "../pages/dashboardpages/admin/AddBlog";
+import MyDonationRequests from "../pages/dashboardpages/donar/MyDonationRequests";
+import CreateDonationRequest from "../pages/dashboardpages/donar/CreateDonationRequest";
+import VolunteerDonations from "../pages/dashboardpages/volunteer/VolunteerDonations";
+import FundingPage from "../pages/private/FundingPage";
+import DonationDetails from "../pages/private/DonationDetails";
 
 
 export const router = createBrowserRouter([
@@ -19,10 +27,10 @@ export const router = createBrowserRouter([
     path: "/",
     Component: RootLayout,
     children: [
-      {
-        index: true,
-        Component: Home,
-      }
+      {index: true, Component: Home,},
+      { path: "donation-request", element: <DonationRequestsPage /> },
+      { path: "blog", element: <Blogpage /> },
+      { path: "search", element: <SearchDonorPage /> },
     ]
   },
   {
@@ -50,10 +58,30 @@ export const router = createBrowserRouter([
   children: [
     { index: true, element: <DashboardHome /> },
     { path: "profile", element: <Profile /> },
-    { path: "users", element: <Users /> }, 
-    { path: "my-donations", element: <MyDonations /> }, 
-    { path: "donations", element: <ManageDonations /> }, 
-    { path: "request", element: <RequestBlood /> } 
+
+     // Admin
+      { path: "all-users", element: <AllUsers/> },
+      { path: "all-blood-donation-request", element: <AllDonations /> },
+      { path: "content-management", element: <ContentManagement /> },
+      { path: "content-management/add-blog", element: <AddBlog /> },
+
+     // Donor
+      { path: "my-donation-requests", element: <MyDonationRequests /> },
+      { path: "create-donation-request", element: <CreateDonationRequest /> },
+
+      // Volunteer
+      { path: "volunteer-donations", element: <VolunteerDonations /> },
+
+      // Shared
+      { path: "funding", element: <FundingPage /> },
   ],
-}
+},
+     {
+    path: "/donation-details/:id",
+    element: (
+      <PrivateRoute>
+        <DonationDetails />
+      </PrivateRoute>
+    ),
+  },
 ]);

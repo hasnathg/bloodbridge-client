@@ -1,11 +1,11 @@
 import React from 'react';
 
-const MyDonations = () => {
+const SearchDonorPage = () => {
     return (
         <div>
-            
+           donar 
         </div>
     );
 };
 
-export default MyDonations;
+export default SearchDonorPage;
