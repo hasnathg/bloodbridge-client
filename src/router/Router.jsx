@@ -10,6 +10,8 @@ import DashboardHome from "../pages/dashboardpages/DashboardHome";
 import Profile from "../pages/dashboardpages/Profile";
 import Users from "../pages/dashboardpages/Users";
 import MyDonations from "../pages/dashboardpages/MyDonations";
+import ManageDonations from "../pages/dashboardpages/ManageDonations";
+import RequestBlood from "../pages/dashboardpages/RequestBlood";
 
 
 export const router = createBrowserRouter([
@@ -50,6 +52,8 @@ export const router = createBrowserRouter([
     { path: "profile", element: <Profile /> },
     { path: "users", element: <Users /> }, 
     { path: "my-donations", element: <MyDonations /> }, 
+    { path: "donations", element: <ManageDonations /> }, 
+    { path: "request", element: <RequestBlood /> } 
   ],
 }
 ]);

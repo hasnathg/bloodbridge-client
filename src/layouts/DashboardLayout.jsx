@@ -9,7 +9,7 @@ const DashboardLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-       <div className="flex min-h-screen">
+       <div className="flex min-h-screen pt-24">
       {/* Mobile toggle button */}
       <button
         className="md:hidden absolute top-4 left-4 z-50 bg-white p-2 rounded shadow"
