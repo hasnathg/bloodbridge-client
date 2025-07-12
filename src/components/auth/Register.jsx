@@ -3,9 +3,11 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router';
 import {useAuth} from '../../provider/AuthContext'
+import { auth } from '../../firebase/firebase.init';
+import { updateProfile } from 'firebase/auth';
 
 const Register = () => {
-  const { registerUser, setUser, createJWT } = useAuth();
+  const { registerUser, setUser, createJWT} = useAuth();
   const [districts, setDistricts] = useState([]);
   const [upazilas, setUpazilas] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
@@ -25,11 +27,11 @@ const Register = () => {
 
   // Load JSON data
   useEffect(() => {
-    fetch("../../data/districts.json")
+    fetch("/data/districts.json")
       .then((res) => res.json())
       .then((data) => setDistricts(data));
 
-    fetch("./../../data/upazilas.json")
+    fetch("/data/upazilas.json")
       .then((res) => res.json())
       .then((data) => setUpazilas(data));
   }, []);
@@ -38,57 +40,65 @@ const Register = () => {
     (u) => u.district_id === selectedDistrict
   );
 
-  const onSubmit = async (data) => {
-    setErrMsg("");
-    setLoading(true);
-    try {
-      // 1. Upload avatar to ImgBB
-      const formData = new FormData();
-      formData.append("image", data.avatar[0]);
+ const onSubmit = async (data) => {
+  setErrMsg("");
+  setLoading(true);
+  try {
+    // Upload avatar
+    const formData = new FormData();
+    formData.append("image", data.avatar[0]);
+    const imgbbRes = await axios.post(
+      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
+      formData
+    );
+    const avatarUrl = imgbbRes.data.data.url;
 
-      const imgbbRes = await axios.post(
-        `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
-        formData
-      );
+    // Register user
+    const userCredential = await registerUser(data.email, data.password);
+    const currentUser = userCredential.user;
 
-      const avatarUrl = imgbbRes.data.data.url;
+    // Update Firebase profile
+    await updateProfile(currentUser, {
+      displayName: data.name,
+      photoURL: avatarUrl,
+    });
 
-      // 2. Register in Firebase
-      const userCredential = await registerUser(data.email, data.password);
-      const firebaseUser = userCredential.user;
+    // Reload and update context
+    await currentUser.reload();
+    setUser(auth.currentUser); 
 
-      // 3. Create user object for DB
-      const newUser = {
-        uid: firebaseUser.uid,
-        name: data.name,
-        email: data.email,
-        bloodGroup: data.bloodGroup,
-        district: data.district,
-        upazila: data.upazila,
-        avatar: avatarUrl,
-        role: "donor", // default
-        status: "active",
-        createdAt: new Date(),
-      };
+    // Save to MongoDB
+    const newUser = {
+      uid: auth.currentUser.uid,
+      name: data.name,
+      email: data.email,
+      bloodGroup: data.bloodGroup,
+      district: data.district,
+      upazila: data.upazila,
+      avatar: avatarUrl,
+      role: "donor",
+      status: "active",
+      createdAt: new Date(),
+    };
+    await axios.post("http://localhost:5000/users", newUser);
 
-      // 4. Save to MongoDB via backend
-      await axios.post("http://localhost:5000/users", newUser);
+    // Get JWT
+    const jwtRes = await createJWT(auth.currentUser);
+    localStorage.setItem("token", jwtRes.token);
 
-      // 5. Generate JWT and store
-      const jwtRes = await createJWT(firebaseUser);
-      localStorage.setItem("token", jwtRes.token);
+    // Navigate
+    navigate("/");
+  } catch (err) {
+    console.error(err);
+    setErrMsg("Registration failed. Try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-      // 6. Update AuthContext & redirect
-      setUser(firebaseUser);
-      navigate("/");
-    } catch (err) {
-      console.error(err);
-      setErrMsg("Registration failed.");
-    } finally {
-      setLoading(false);
-    }
-  };
-    return (
+
+  
+  return (
         <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow mt-8">
       <h2 className="text-2xl font-bold text-center mb-4">Register</h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">

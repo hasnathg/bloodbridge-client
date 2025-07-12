@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router';
+import { useAuth } from '../../provider/AuthContext';
+import { auth } from '../../firebase/firebase.init';
+
 
 
 
 const Login = () => {
-
+     const { loginUser, setUser } = useAuth();
     const {register,handleSubmit, formState: {errors}} = useForm();
     const [errMsg, setErrMsg]= useState();
     const [loading, setLoading]= useState(false);
@@ -17,6 +20,11 @@ const Login = () => {
 
         try{
             await loginUser(data.email, data.password);
+
+            await auth.currentUser.reload();
+            const updatedUser = auth.currentUser;
+            setUser(updatedUser);
+
             navigate("/");
         } catch (err) {
             console.error(err);
