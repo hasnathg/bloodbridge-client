@@ -28,7 +28,7 @@ const DashboardLayout = () => {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 p-4 bg-gray-100 ml-0 md:ml-64">
+      <main className="flex-1 px-4 py-6 md:pl-8 md:pr-10 bg-gray-100">
         <Outlet />
       </main>
     </div>

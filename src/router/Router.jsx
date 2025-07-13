@@ -20,6 +20,8 @@ import CreateDonationRequest from "../pages/dashboardpages/donar/CreateDonationR
 import VolunteerDonations from "../pages/dashboardpages/volunteer/VolunteerDonations";
 import FundingPage from "../pages/private/FundingPage";
 import DonationDetails from "../pages/private/DonationDetails";
+import EditDonation from "../pages/dashboardpages/EditDonation";
+
 
 
 export const router = createBrowserRouter([
@@ -68,16 +70,18 @@ export const router = createBrowserRouter([
      // Donor
       { path: "my-donation-requests", element: <MyDonationRequests /> },
       { path: "create-donation-request", element: <CreateDonationRequest /> },
+      
 
       // Volunteer
       { path: "volunteer-donations", element: <VolunteerDonations /> },
 
       // Shared
       { path: "funding", element: <FundingPage /> },
+      { path: "edit-donation/:id", element: <EditDonation></EditDonation> },
   ],
 },
      {
-    path: "/donation-details/:id",
+    path: "/donation-request/:id",
     element: (
       <PrivateRoute>
         <DonationDetails />
