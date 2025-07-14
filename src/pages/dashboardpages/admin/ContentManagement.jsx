@@ -14,7 +14,12 @@ const ContentManagement = () => {
     queryKey: ["blogs", filter],
     queryFn: async () => {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/blogs${filter !== "all" ? `?status=${filter}` : ""}`
+        `${import.meta.env.VITE_API_URL}/blogs${filter !== "all" ? `?status=${filter}` : ""}`,
+          {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+        },
+      }
       );
       return res.data;
     },
@@ -23,7 +28,13 @@ const ContentManagement = () => {
   // Mutations for publish/unpublish/delete
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }) => {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/blogs/${id}/status`, { status });
+      await axios.patch(`${import.meta.env.VITE_API_URL}/blogs/${id}/status`, { status },
+        {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+    },
+  }
+      );
     },
     onSuccess: () => {
       toast.success("Status updated!");
@@ -34,8 +45,14 @@ const ContentManagement = () => {
 
   const deleteBlog = useMutation({
     mutationFn: async (id) => {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/${id}`);
-    },
+      await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/${id}`,
+         {
+  headers: {
+    Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+  },
+}
+    );
+  },
     onSuccess: () => {
       toast.success("Blog deleted");
       refetch();
@@ -92,7 +109,12 @@ const ContentManagement = () => {
                 {blog.content?.replace(/<[^>]+>/g, "").slice(0, 150)}...
               </p>
               <p>
-                <span className="badge">
+                <span className={`badge px-2 py-1 rounded text-sm font-medium
+    ${blog.status === "draft"
+      ? "border border-red-500 text-red-150 bg-white"
+      : "border border-green-500 text-green-700 bg-green-100"}
+  `}
+>
                   {blog.status === "draft" ? "Draft" : "Published"}
                 </span>
               </p>

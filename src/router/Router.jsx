@@ -21,6 +21,7 @@ import VolunteerDonations from "../pages/dashboardpages/volunteer/VolunteerDonat
 import FundingPage from "../pages/private/FundingPage";
 import DonationDetails from "../pages/private/DonationDetails";
 import EditDonation from "../pages/dashboardpages/EditDonation";
+import BlogDetails from "../pages/blog/BlogDetails";
 
 
 
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       {index: true, Component: Home,},
       { path: "donation-request", element: <DonationRequestsPage /> },
       { path: "blog", element: <Blogpage /> },
+      { path: "blog/:id", element: <BlogDetails /> },
       { path: "search", element: <SearchDonorPage /> },
     ]
   },
