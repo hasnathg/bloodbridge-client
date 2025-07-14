@@ -83,8 +83,8 @@ const DashboardHome = () => {
                     <td>{req.donationTime}</td>
                     <td>{req.bloodGroup}</td>
                     <td>
-                      <span className={`badge ${getStatusColor(req.donationStatus)}`}>
-                        {req.donationStatus}
+                      <span className={`badge ${getStatusColor(req.status)}`}>
+                        {req.status}
                       </span>
                     </td>
                     <td>

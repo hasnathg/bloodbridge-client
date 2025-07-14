@@ -27,13 +27,15 @@ const getStatusColor = (status) => {
 const MyDonationRequests = () => {
     const { user } = useAuth();
     const [statusFilter, setStatusFilter] = useState("all");
+    const [page, setPage] = useState(1);
+    const limit = 5;
 
   const {
-    data: requests = [],
+    data,
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["my-donation-requests", user?.email, statusFilter],
+    queryKey: ["my-donation-requests", user?.email, statusFilter,page],
     queryFn: async () => {
       const res = await axios.get(
         `${import.meta.env.VITE_API_URL}/donations`,
@@ -41,6 +43,8 @@ const MyDonationRequests = () => {
           params: {
             email: user.email,
             status: statusFilter !== "all" ? statusFilter : undefined,
+            limit,
+            page,
           },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("access-token")}`,
@@ -50,6 +54,7 @@ const MyDonationRequests = () => {
       return res.data;
     },
     enabled: !!user?.email,
+    keepPreviousData: true,
   });
 
   const handleDelete = async (id) => {
@@ -70,15 +75,43 @@ const MyDonationRequests = () => {
     }
   };
 
+  const handleStatusUpdate = async (id, newStatus) => {
+  try {
+    await axios.patch(
+      `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
+      {
+        status: newStatus,
+        donorName: user.displayName,
+        donorEmail: user.email,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+        },
+      }
+    );
+    toast.success(`Marked as ${newStatus}`);
+    refetch();
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to update status");
+  }
+  
+};
+const totalPages = Math.ceil((data?.total || 0) / limit);
+
   if (isLoading) return <LoadingSpinner></LoadingSpinner>;
+    
     return (
-        <div className="p-4 bg-white shadow rounded">
+<div className="p-4 bg-white shadow rounded">
       <h2 className="text-2xl font-semibold mb-4">My Donation Requests</h2>
 
       <div className="flex items-center justify-between mb-4">
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+          onChange={(e) => {setStatusFilter(e.target.value)
+            setPage(1);
+          }}
           className="select select-bordered w-40"
         >
           {statusOptions.map((s) => (
@@ -89,9 +122,10 @@ const MyDonationRequests = () => {
         </select>
       </div>
 
-      {requests.length === 0 ? (
+      {data?.data?.length === 0 ? (
         <p>No donation requests found.</p>
       ) : (
+        <>
         <div className="overflow-x-auto bg-white rounded shadow p-4">
           <table className="table w-full text-sm">
             <thead>
@@ -105,7 +139,7 @@ const MyDonationRequests = () => {
               </tr>
             </thead>
             <tbody>
-              {requests.map((req) => (
+              {data?.data?.map((req) => (
                 <tr key={req._id}>
                   <td>{req.recipientName}</td>
                   <td className="max-w-[150px] truncate">
@@ -122,34 +156,73 @@ const MyDonationRequests = () => {
                     </span>
                   </td>
                   <td className="whitespace-nowrap">
-                    <div className="flex flex-row flex-wrap items-center gap-2 justify-end max-w-[250px]">
-                        <Link
-                      to={`/dashboard/edit-donation/${req._id}`}
-                      className="btn btn-sm"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(req._id)}
-                      className="btn btn-sm btn-error"
-                    >
-                      Delete
-                    </button>
-                    <Link
-                      to={`/donation-request/${req._id}`}
-                      className="btn btn-sm btn-info"
-                    >
-                      View
-                    </Link>
-                    </div>
+                    <div className="flex flex-row flex-wrap items-center gap-2 justify-end max-w-[300px]">
+                      <Link
+                        to={`/dashboard/edit-donation/${req._id}`}
+                        className="btn btn-sm"
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(req._id)}
+                        className="btn btn-sm btn-error"
+                      >
+                        Delete
+                      </button>
+                      <Link
+                        to={`/donation-request/${req._id}`}
+                        className="btn btn-sm btn-info"
+                      >
+                        View
+                      </Link>
 
-                    
+                      {req.status === 'inprogress' && (
+                        <>
+                          <button
+                            onClick={() =>
+                              handleStatusUpdate(req._id, 'done')
+                            }
+                            className="btn btn-sm btn-success"
+                          >
+                            Mark as Done
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleStatusUpdate(req._id, 'cancelled')
+                            }
+                            className="btn btn-sm btn-warning"
+                          >
+                            Cancel
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+        <div className="flex justify-center mt-6 gap-2">
+            <button
+              onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+              className="btn btn-sm"
+              disabled={page === 1}
+            >
+              Prev
+            </button>
+            <span className="btn btn-sm btn-ghost cursor-default">
+              Page {page} of {totalPages}
+            </span>
+            <button
+              onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+              className="btn btn-sm"
+              disabled={page >= totalPages}
+            >
+              Next
+            </button>
+          </div>
+        </>
       )}
     </div>
     );

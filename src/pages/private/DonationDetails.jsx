@@ -1,24 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import React from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery} from '@tanstack/react-query';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 
-const DonationDetails = () => {
-   const { id } = useParams();
-  const navigate = useNavigate();
-  const { user, role } = useAuth();
-  const queryClient = useQueryClient();
-  const [showModal, setShowModal] = useState(false);
+const getStatusColor = (status) => {
+  switch (status) {
+    case "pending":
+      return "badge-warning";
+    case "inprogress":
+      return "badge-info";
+    case "done":
+      return "badge-success";
+    case "cancelled":
+      return "badge-error";
+    default:
+      return "badge-ghost";
+  }
+};
 
-  const {
-    data: donation,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["donation", id],
+const DonationDetails = () => {
+  const { id } = useParams();
+  const { user, role } = useAuth();
+  const navigate = useNavigate();
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ["donation-details", id],
     queryFn: async () => {
       const res = await axios.get(`${import.meta.env.VITE_API_URL}/donations/${id}`, {
         headers: {
@@ -27,11 +36,12 @@ const DonationDetails = () => {
       });
       return res.data;
     },
+    enabled: !!id,
   });
 
-  const updateDonation = useMutation({
-    mutationFn: async () => {
-      return await axios.patch(
+  const confirmDonationMutation = useMutation({
+    mutationFn: async () =>
+      axios.patch(
         `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
         {
           status: "inprogress",
@@ -43,85 +53,121 @@ const DonationDetails = () => {
             Authorization: `Bearer ${localStorage.getItem("access-token")}`,
           },
         }
-      );
-    },
+      ),
     onSuccess: () => {
-      toast.success("Donation confirmed!");
-      queryClient.invalidateQueries(["donation", id]);
-      navigate("/dashboard/my-donation-requests");
+      toast.success("You confirmed your donation!");
+      refetch();
     },
     onError: () => {
-      toast.error("Failed to confirm donation");
+      toast.error("Could not confirm donation");
     },
   });
 
-  if (isLoading) return <LoadingSpinner />;
-  if (isError) return <p>Failed to load donation details</p>;
+  const handleStatusChange = async (newStatus) => {
+    try {
+      await axios.patch(
+        `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
+        {
+          status: newStatus,
+          donorName: user.displayName,
+          donorEmail: user.email,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+          },
+        }
+      );
+      toast.success(`Marked as ${newStatus}`);
+      refetch();
+    } catch (err) {
+      console.error(err);
+      toast.error("Update failed");
+    }
+  };
 
-  const isOwner = user.email === donation.requesterEmail;
-  const isDonor = role === "donor" && !isOwner && donation.status === "pending";
+
+  if (isLoading) return <LoadingSpinner />;
+
+  if (!data) return <p>Request not found</p>;
+
+  const {
+    recipientName,
+    recipientDistrict,
+    recipientUpazila,
+    hospitalName,
+    fullAddress,
+    bloodGroup,
+    donationDate,
+    donationTime,
+    status,
+    requesterName,
+    requesterEmail,
+    requestMessage,
+    donorName,
+    donorEmail,
+  } = data;
+
+  const isOwner = user?.email === requesterEmail;
+  const canDonate = role === "donor" && status === "pending";
 
   return (
-    <div className="max-w-3xl mx-auto bg-white shadow p-6 rounded">
-      <h2 className="text-2xl font-bold mb-4">Donation Request Details</h2>
+    <div className="max-w-3xl mx-auto bg-white p-6 pt-16 rounded shadow space-y-4">
+      <h2 className="text-2xl font-bold">Donation Request Details</h2>
 
-      <div className="space-y-2">
-        <p><strong>Recipient:</strong> {donation.recipientName}</p>
-        <p><strong>District:</strong> {donation.recipientDistrict}</p>
-        <p><strong>Upazila:</strong> {donation.recipientUpazila}</p>
-        <p><strong>Hospital:</strong> {donation.hospitalName}</p>
-        <p><strong>Full Address:</strong> {donation.fullAddress}</p>
-        <p><strong>Blood Group:</strong> {donation.bloodGroup}</p>
-        <p><strong>Donation Date:</strong> {donation.donationDate}</p>
-        <p><strong>Donation Time:</strong> {donation.donationTime}</p>
-        <p><strong>Status:</strong> 
-          <span className="ml-2 badge badge-info">{donation.status}</span>
-        </p>
-        <p><strong>Requester:</strong> {donation.requesterName} ({donation.requesterEmail})</p>
-        <p><strong>Reason:</strong> {donation.requestMessage}</p>
-
-        {donation.donorEmail && (
-          <p>
-            <strong>Donor Info:</strong> {donation.donorName} ({donation.donorEmail})
-          </p>
+      <div className="grid gap-2">
+        <p><strong>Recipient:</strong> {recipientName}</p>
+        <p><strong>District:</strong> {recipientDistrict}</p>
+        <p><strong>Upazila:</strong> {recipientUpazila}</p>
+        <p><strong>Hospital:</strong> {hospitalName}</p>
+        <p><strong>Full Address:</strong> {fullAddress}</p>
+        <p><strong>Blood Group:</strong> {bloodGroup}</p>
+        <p><strong>Donation Date:</strong> {donationDate}</p>
+        <p><strong>Donation Time:</strong> {donationTime}</p>
+        <p><strong>Status:</strong>{""} <span className={`badge ${getStatusColor(status)}`}>{status}</span></p>
+        <p><strong>Requester:</strong> {requesterName} ({requesterEmail})</p>
+        <p><strong>Reason:</strong> {requestMessage}</p>
+        {donorName && donorEmail && (
+          <p><strong>Donor:</strong> {donorName} ({donorEmail})</p>
         )}
       </div>
 
-      {isDonor && (
-        <div className="mt-6">
-          <button onClick={() => setShowModal(true)} className="btn btn-primary">
-            Donate
+      {isOwner && (
+        <div className="flex gap-2 mt-4">
+          <Link to={`/dashboard/edit-donation/${id}`} className="btn btn-sm btn-primary">Edit</Link>
+        </div>
+      )}
+
+      {canDonate && (
+        <button
+          className="btn btn-sm btn-success mt-4"
+           onClick={() => confirmDonationMutation.mutate()}
+          disabled={confirmDonationMutation.isLoading}
+        >
+          {confirmDonationMutation.isLoading ? "Updating..." : "I want to Donate"}
+        </button>
+      )}
+     
+      {isOwner && status === "inprogress" && (
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={() => handleStatusChange("done")}
+            className="btn btn-sm btn-success"
+          >
+            Mark as Done
+          </button>
+          <button
+            onClick={() => handleStatusChange("cancelled")}
+            className="btn btn-sm btn-warning"
+          >
+            Cancel
           </button>
         </div>
       )}
 
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg w-[90%] md:w-[400px]">
-            <h3 className="text-lg font-semibold mb-2">Confirm Donation</h3>
-            <p className="mb-4">Are you sure you want to donate for this request?</p>
-            <div className="flex justify-end space-x-2">
-              <button
-                onClick={() => setShowModal(false)}
-                className="btn btn-sm"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  updateDonation.mutate();
-                  setShowModal(false);
-                }}
-                className="btn btn-sm btn-primary"
-              >
-                Confirm
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
 
 export default DonationDetails;
