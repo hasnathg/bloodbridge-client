@@ -10,7 +10,7 @@ const ContentManagement = () => {
   const [filter, setFilter] = useState("all");
 
   // Fetch all blogs
-  const { data: blogs = [], isLoading, refetch } = useQuery({
+  const {data = {}, isLoading, refetch } = useQuery({
     queryKey: ["blogs", filter],
     queryFn: async () => {
       const res = await axios.get(
@@ -24,6 +24,7 @@ const ContentManagement = () => {
       return res.data;
     },
   });
+  const blogs = data.data || [];
 
   // Mutations for publish/unpublish/delete
   const updateStatus = useMutation({
@@ -94,7 +95,7 @@ const ContentManagement = () => {
         <p>No blogs found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {blogs.map((blog) => (
+          {Array.isArray(blogs) && blogs.map((blog) => (
             <div
               key={blog._id}
               className="border rounded shadow p-4 bg-white space-y-2"

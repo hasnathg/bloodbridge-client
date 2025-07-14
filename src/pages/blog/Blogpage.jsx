@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 import React, { useState } from 'react';
 import { Link } from 'react-router';
+import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 
 const Blogpage = () => {
     const [search, setSearch] = useState("");
@@ -43,7 +44,7 @@ const Blogpage = () => {
       </div>
 
       {isLoading ? (
-        <p>Loading blogs...</p>
+        <LoadingSpinner></LoadingSpinner>
       ) : blogs.length === 0 ? (
         <p>No blogs found.</p>
       ) : (
