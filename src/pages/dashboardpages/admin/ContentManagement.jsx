@@ -1,10 +1,137 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useAuth } from '../../../provider/AuthContext';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { Link } from 'react-router';
 
 const ContentManagement = () => {
+    const { role } = useAuth();
+  const [filter, setFilter] = useState("all");
+
+  // Fetch all blogs
+  const { data: blogs = [], isLoading, refetch } = useQuery({
+    queryKey: ["blogs", filter],
+    queryFn: async () => {
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/blogs${filter !== "all" ? `?status=${filter}` : ""}`
+      );
+      return res.data;
+    },
+  });
+
+  // Mutations for publish/unpublish/delete
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }) => {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/blogs/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      toast.success("Status updated!");
+      refetch();
+    },
+    onError: () => toast.error("Update failed"),
+  });
+
+  const deleteBlog = useMutation({
+    mutationFn: async (id) => {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/${id}`);
+    },
+    onSuccess: () => {
+      toast.success("Blog deleted");
+      refetch();
+    },
+    onError: () => toast.error("Delete failed"),
+  });
     return (
-        <div>
-            content
+        <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Content Management</h2>
+        {(role === "admin" || role === "volunteer") && (
+          <Link
+            to="/dashboard/content-management/add-blog"
+            className="btn btn-sm btn-primary"
+          >
+            Add Blog
+          </Link>
+        )}
+      </div>
+
+      {/* Filter */}
+      <div className="mb-4">
+        <label className="font-medium mr-2">Filter by status:</label>
+        <select
+          className="select select-bordered select-sm"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        >
+          <option value="all">All</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+        </select>
+      </div>
+
+      {/* Blogs list */}
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : blogs.length === 0 ? (
+        <p>No blogs found.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {blogs.map((blog) => (
+            <div
+              key={blog._id}
+              className="border rounded shadow p-4 bg-white space-y-2"
+            >
+              <img
+                src={blog.thumbnail}
+                alt={blog.title}
+                className="h-40 w-full object-cover rounded"
+              />
+              <h3 className="text-lg font-semibold">{blog.title}</h3>
+              <p className="text-sm text-gray-600 line-clamp-3">
+                {blog.content?.replace(/<[^>]+>/g, "").slice(0, 150)}...
+              </p>
+              <p>
+                <span className="badge">
+                  {blog.status === "draft" ? "Draft" : "Published"}
+                </span>
+              </p>
+
+              {/* Action buttons */}
+              {role === "admin" && (
+                <div className="flex gap-2">
+                  {blog.status === "draft" ? (
+                    <button
+                      className="btn btn-sm btn-success"
+                      onClick={() =>
+                        updateStatus.mutate({ id: blog._id, status: "published" })
+                      }
+                    >
+                      Publish
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-sm btn-warning"
+                      onClick={() =>
+                        updateStatus.mutate({ id: blog._id, status: "draft" })
+                      }
+                    >
+                      Unpublish
+                    </button>
+                  )}
+                  <button
+                    className="btn btn-sm btn-error"
+                    onClick={() => deleteBlog.mutate(blog._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
+      )}
+    </div>
     );
 };
 

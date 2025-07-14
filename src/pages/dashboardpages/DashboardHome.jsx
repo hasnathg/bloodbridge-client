@@ -42,7 +42,7 @@ const DashboardHome = () => {
           },
         }
       );
-      return res.data;
+      return res.data.data;
     },
   });
 
