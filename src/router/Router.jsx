@@ -78,7 +78,7 @@ export const router = createBrowserRouter([
       { path: "volunteer-donations", element: <VolunteerDonations /> },
 
       // Shared
-      { path: "funding", element: <FundingPage /> },
+      
       { path: "edit-donation/:id", element: <EditDonation></EditDonation> },
   ],
 },
@@ -87,6 +87,15 @@ export const router = createBrowserRouter([
     element: (
       <PrivateRoute>
         <DonationDetails />
+      </PrivateRoute>
+    ),
+  },
+
+  {
+    path: "/funding",
+    element: (
+      <PrivateRoute>
+        <FundingPage />
       </PrivateRoute>
     ),
   },
