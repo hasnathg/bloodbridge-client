@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../provider/AuthContext';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../../components/spinner/LoadingSpinner';
 import { Link } from 'react-router';
+import axiosSecure from '../../../utilities/axiosSecure';
 
 
 const statusOptions = ["all", "pending", "inprogress", "done", "cancelled"];
@@ -37,16 +37,7 @@ const AllDonations = () => {
   } = useQuery({
     queryKey: ["all-donations", statusFilter, page],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/donations`, {
-        params: {
-          status: statusFilter !== "all" ? statusFilter : undefined,
-          limit,
-          page,
-        },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      });
+      const res = await axiosSecure.get("/donations", { params: { status: statusFilter !== "all" ? statusFilter : undefined, limit, page } });
       return res.data;
     },
     keepPreviousData: true,
@@ -54,19 +45,11 @@ const AllDonations = () => {
 
   const handleStatusUpdate = async (id, newStatus) => {
     try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
-        {
-          status: newStatus,
-          donorName: user.displayName,
-          donorEmail: user.email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      await axiosSecure.patch(`/donations/${id}/status`, {
+      status: newStatus,
+      donorName: user.displayName,
+      donorEmail: user.email,
+    });
       toast.success(`Marked as ${newStatus}`);
       refetch();
     } catch (err) {
@@ -80,11 +63,7 @@ const AllDonations = () => {
     if (!confirm) return;
 
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/donations/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      });
+      await axiosSecure.delete(`/donations/${id}`);
       toast.success("Deleted successfully");
       refetch();
     } catch (err) {

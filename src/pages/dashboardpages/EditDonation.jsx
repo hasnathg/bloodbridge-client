@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+import axiosSecure from '../../utilities/axiosSecure';
 
 const EditDonation = () => {
   const { id } = useParams();
@@ -23,11 +23,7 @@ const EditDonation = () => {
   useEffect(() => {
     const fetchDonation = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/donations/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        });
+        const res = await axiosSecure.get(`/donations/${id}`);
 
         if (res.data.requesterEmail !== user?.email) {
           toast.error("You are not authorized to edit this request.");
@@ -56,11 +52,7 @@ const EditDonation = () => {
     try {
         const { _id, ...updateData } = data;
         
-      const res = await axios.put(`${import.meta.env.VITE_API_URL}/donations/${id}`, data, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      });
+      const res = await axiosSecure.put(`/donations/${id}`, data);
 
       if (res.status === 200) {
         toast.success("Donation request updated successfully!");

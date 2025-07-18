@@ -3,7 +3,7 @@ import { useAuth } from '../../../provider/AuthContext';
 import { useNavigate } from 'react-router';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import axiosSecure from '../../../utilities/axiosSecure';
 
 const CreateDonationRequest = () =>  {
   const { user, role } = useAuth();
@@ -65,15 +65,7 @@ const CreateDonationRequest = () =>  {
     };
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/donations`,
-        donationData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      const res = await axiosSecure.post("/donations", donationData);
       if (res.status === 201) {
         toast.success("Donation request created successfully!");
         reset();

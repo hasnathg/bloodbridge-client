@@ -2,9 +2,9 @@ import React from 'react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import { useMutation, useQuery} from '@tanstack/react-query';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+import axiosSecure from '../../utilities/axiosSecure';
 
 const getStatusColor = (status) => {
   switch (status) {
@@ -29,31 +29,18 @@ const DonationDetails = () => {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["donation-details", id],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/donations/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      });
+      const res = await axiosSecure.get(`/donations/${id}`);
       return res.data;
     },
     enabled: !!id,
   });
 
   const confirmDonationMutation = useMutation({
-    mutationFn: async () =>
-      axios.patch(
-        `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
-        {
-          status: "inprogress",
-          donorName: user.displayName,
-          donorEmail: user.email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      ),
+    mutationFn: async () => axiosSecure.patch(`/donations/${id}/status`, {
+  status: "inprogress",
+  donorName: user.displayName,
+  donorEmail: user.email,
+}),
     onSuccess: () => {
       toast.success("You confirmed your donation!");
       refetch();
@@ -65,19 +52,11 @@ const DonationDetails = () => {
 
   const handleStatusChange = async (newStatus) => {
     try {
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/donations/${id}/status`,
-        {
-          status: newStatus,
-          donorName: user.displayName,
-          donorEmail: user.email,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      await axiosSecure.patch(`/donations/${id}/status`, {
+  status: newStatus,
+  donorName: user.displayName,
+  donorEmail: user.email,
+});
       toast.success(`Marked as ${newStatus}`);
       refetch();
     } catch (err) {

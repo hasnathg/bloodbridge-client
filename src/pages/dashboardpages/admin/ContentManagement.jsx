@@ -1,65 +1,46 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../provider/AuthContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router';
+import axiosSecure from '../../../utilities/axiosSecure';
 
 const ContentManagement = () => {
     const { role } = useAuth();
   const [filter, setFilter] = useState("all");
 
   // Fetch all blogs
-  const {data = {}, isLoading, refetch } = useQuery({
-    queryKey: ["blogs", filter],
-    queryFn: async () => {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/blogs${filter !== "all" ? `?status=${filter}` : ""}`,
-          {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      }
-      );
-      return res.data;
-    },
-  });
+  const { data = {}, isLoading, refetch } = useQuery({
+  queryKey: ["blogs", filter],
+  queryFn: async () => {
+    const res = await axiosSecure.get(
+      `/blogs${filter !== "all" ? `?status=${filter}` : ""}`
+    );
+    return res.data;
+  },
+});
   const blogs = data.data || [];
 
   // Mutations for publish/unpublish/delete
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }) => {
-      await axios.patch(`${import.meta.env.VITE_API_URL}/blogs/${id}/status`, { status },
-        {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-    },
-  }
-      );
-    },
-    onSuccess: () => {
-      toast.success("Status updated!");
-      refetch();
-    },
-    onError: () => toast.error("Update failed"),
-  });
+  mutationFn: async ({ id, status }) => {
+    await axiosSecure.patch(`/blogs/${id}/status`, { status });
+  },
+  onSuccess: () => {
+    toast.success("Status updated!");
+    refetch();
+  },
+});
 
   const deleteBlog = useMutation({
-    mutationFn: async (id) => {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/blogs/${id}`,
-         {
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem("access-token")}`,
+  mutationFn: async (id) => {
+    await axiosSecure.delete(`/blogs/${id}`);
   },
-}
-    );
+  onSuccess: () => {
+    toast.success("Blog deleted");
+    refetch();
   },
-    onSuccess: () => {
-      toast.success("Blog deleted");
-      refetch();
-    },
-    onError: () => toast.error("Delete failed"),
-  });
+});
     return (
         <div className="space-y-6">
       <div className="flex justify-between items-center">

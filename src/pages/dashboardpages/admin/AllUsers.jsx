@@ -1,29 +1,26 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../../provider/AuthContext';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import LoadingSpinner from '../../../components/spinner/LoadingSpinner';
 import { MoreHorizontal } from 'lucide-react';
+import axiosSecure from '../../../utilities/axiosSecure';
 
 const AllUsers = () => {
-    const { user, role } = useAuth();
-    const [filter, setFilter] = useState("all");
-    const [page, setPage] = useState(1);
-    const limit = 8;
+  const { role } = useAuth();
+  const [filter, setFilter] = useState("all");
+  const [page, setPage] = useState(1);
+  const limit = 8;
 
-    const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["users", filter, page],
     queryFn: async () => {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/users`, {
+      const res = await axiosSecure.get("/users", {
         params: { status: filter, page, limit },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
       });
       return res.data;
     },
-    enabled: role === "admin", 
+    enabled: role === "admin",
   });
 
   const users = data?.data || [];
@@ -31,15 +28,7 @@ const AllUsers = () => {
 
   const updateStatus = useMutation({
     mutationFn: async ({ email, status }) => {
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/users/${email}/status`,
-        { status },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      await axiosSecure.patch(`/users/${email}/status`, { status });
     },
     onSuccess: () => {
       toast.success("Status updated");
@@ -48,18 +37,9 @@ const AllUsers = () => {
     onError: () => toast.error("Failed to update status"),
   });
 
-
   const updateRole = useMutation({
     mutationFn: async ({ email, role }) => {
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/users/${email}/role`,
-        { role },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      await axiosSecure.patch(`/users/${email}/role`, { role });
     },
     onSuccess: () => {
       toast.success("Role updated");
@@ -68,7 +48,7 @@ const AllUsers = () => {
     onError: () => toast.error("Failed to update role"),
   });
 
-  if (isLoading) return <LoadingSpinner/>;
+  if (isLoading) return <LoadingSpinner />;
 
     return (
          <div className="p-4 space-y-6">

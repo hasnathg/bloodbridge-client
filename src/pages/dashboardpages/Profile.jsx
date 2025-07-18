@@ -4,6 +4,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+import axiosSecure from '../../utilities/axiosSecure';
 
 const Profile = () => {
 
@@ -35,7 +36,7 @@ const Profile = () => {
    useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/users/${user.email}`);
+        const res = await axiosSecure.get(`/users/${user.email}`);
         setProfile(res.data);
         reset(res.data); 
         setSelectedDistrict(res.data.district);
@@ -73,15 +74,8 @@ const Profile = () => {
         avatar: avatarUrl,
       };
 
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/users/${user.email}`,
-        updatedProfile,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-          },
-        }
-      );
+      await axiosSecure.patch(`/users/${user.email}`, updatedProfile);
+
 
       toast.success("Profile updated!");
       setEditMode(false);

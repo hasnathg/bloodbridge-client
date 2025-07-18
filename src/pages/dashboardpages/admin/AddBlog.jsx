@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router';
 import JoditEditor from "jodit-react";
+import axiosSecure from '../../../utilities/axiosSecure';
 
 const AddBlog = () => {
     const [content, setContent] = useState("");
@@ -36,12 +37,8 @@ const AddBlog = () => {
         createdAt: new Date(),
       };
 
-      await axios.post(`${import.meta.env.VITE_API_URL}/blogs`, blogData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access-token")}`,
-        },
-      });
-
+      await axiosSecure.post("/blogs", blogData);
+      
       toast.success("Blog created as draft!");
       reset();
       setContent("");

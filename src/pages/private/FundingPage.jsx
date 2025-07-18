@@ -2,10 +2,10 @@ import { CardElement, Elements, useElements, useStripe } from '@stripe/react-str
 import { loadStripe } from '@stripe/stripe-js';
 import React, { useState } from 'react';
 import { useAuth } from '../../provider/AuthContext';
-import axios from 'axios';
 import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+import axiosSecure from '../../utilities/axiosSecure';
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
@@ -18,6 +18,7 @@ const PaymentForm = ({ amount, onSuccess, onClose }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!stripe || !elements) return;
 
     if (amount <= 0) {
@@ -25,24 +26,10 @@ const PaymentForm = ({ amount, onSuccess, onClose }) => {
       return;
     }
 
-    const token = localStorage.getItem("access-token");
-    if (!token) {
-      toast.error("Unauthorized! Please log in again.");
-      return;
-    }
-
     setIsProcessing(true);
 
     try {
-      // ✅ Create Payment Intent
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/create-payment-intent`,
-        { amount },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
+      const res = await axiosSecure.post("/create-payment-intent", { amount });
       const clientSecret = res.data.clientSecret;
 
       const cardElement = elements.getElement(CardElement);
@@ -59,25 +46,17 @@ const PaymentForm = ({ amount, onSuccess, onClose }) => {
       if (error) {
         toast.error(error.message);
       } else if (paymentIntent.status === "succeeded") {
-        // ✅ Save fund to DB
-        await axios.post(
-          `${import.meta.env.VITE_API_URL}/funds`,
-          {
-            amount,
-            name: user.displayName,
-            email: user.email,
-            paymentId: paymentIntent.id,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        await axiosSecure.post("/funds", {
+          amount,
+          name: user.displayName,
+          email: user.email,
+          paymentId: paymentIntent.id,
+        });
         toast.success("Payment successful!");
         onSuccess();
         onClose();
       }
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Payment failed");
     } finally {
       setIsProcessing(false);
@@ -105,18 +84,12 @@ const FundingPage = () => {
   const [page, setPage] = useState(1);
   const limit = 5;
 
-  const {
-    data,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["funds", page],
-    enabled: !loading && !!user, // ✅ Prevent request before token
+    enabled: !loading && !!user,
     queryFn: async () => {
-      const token = localStorage.getItem("access-token");
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/funds`, {
+      const res = await axiosSecure.get("/funds", {
         params: { page, limit },
-        headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     },
@@ -131,15 +104,12 @@ const FundingPage = () => {
     <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Funding Page</h2>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="btn btn-sm btn-primary"
-        >
+        <button onClick={() => setIsOpen(true)} className="btn btn-sm btn-primary">
           Give Fund
         </button>
       </div>
 
-      {/* ✅ Funding Table */}
+      {/*  Funding Table */}
       {isLoading ? (
         <LoadingSpinner />
       ) : funds.length === 0 ? (
@@ -171,7 +141,7 @@ const FundingPage = () => {
         </div>
       )}
 
-      {/* ✅ Pagination */}
+      {/*  Pagination */}
       {totalPages > 1 && (
         <div className="mt-4 flex justify-center gap-2">
           {Array.from({ length: totalPages }).map((_, i) => (
@@ -188,7 +158,7 @@ const FundingPage = () => {
         </div>
       )}
 
-      {/* ✅ Modal for Payment */}
+      {/*  Modal for Payment */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
