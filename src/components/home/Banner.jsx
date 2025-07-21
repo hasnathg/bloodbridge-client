@@ -1,5 +1,6 @@
 import React from 'react';
 import banner from '../../assets/banner2.JPG'
+import { NavLink } from 'react-router';
 
 const Banner = () => {
     return (
@@ -16,8 +17,8 @@ const Banner = () => {
     <h2 className=" text-center text-lg font-semibold">Connecting Donors, Saving Lives</h2>
     <p className="text-sm max-w-md text-center mx-auto ">A reliable platform for blood donation and emergency support.</p>
     <div className="card-actions flex justify-center pb-16">
-      <button className="btn btn-outline btn-sm  text-red-500 border-white ">Join as a donor</button>
-      <button className="btn btn-outline btn-sm text-red-500 border-white">Search donors</button>
+      <NavLink to ="/register"><button className="btn btn-outline btn-sm  text-red-500 border-white ">Join as a donor</button></NavLink>
+      <NavLink to="/search"><button className="btn btn-outline btn-sm text-red-500 border-white">Search donors</button></NavLink>
     </div>
   </div>
 </div>
