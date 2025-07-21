@@ -5,27 +5,26 @@ import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import { Link } from 'react-router';
 import { DollarSign, Droplet, Users } from 'lucide-react';
 import axiosSecure from '../../utilities/axiosSecure';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+} from "recharts";
 
 
-const getStatusColor = (status) => {
-  switch (status) {
-    case "pending":
-      return "badge-warning";
-    case "inprogress":
-      return "badge-info";
-    case "done":
-      return "badge-success";
-    case "canceled":
-      return "badge-error";
-    default:
-      return "badge-ghost";
-  }
-};
+const COLORS = ["#0088FE", "#FF8042", "#00C49F", "#FFBB28"];
 
 const DashboardHome = () => {
   const { user, role } = useAuth();
 
-  //  Fetch all users (only for admin/volunteer)
+  //  Fetch Core Stats for Cards
   const { data: users = [], isLoading: usersLoading } = useQuery({
     queryKey: ["users", role],
     enabled: role === "admin" || role === "volunteer",
@@ -35,7 +34,6 @@ const DashboardHome = () => {
     },
   });
 
-  //  Fetch all donations (only for admin/volunteer)
   const { data: donations = [], isLoading: donationsLoading } = useQuery({
     queryKey: ["donations", role],
     enabled: role === "admin" || role === "volunteer",
@@ -45,7 +43,6 @@ const DashboardHome = () => {
     },
   });
 
-  //  Fetch all funds (only for admin/volunteer)
   const { data: funds = [], isLoading: fundsLoading } = useQuery({
     queryKey: ["funds", role],
     enabled: role === "admin" || role === "volunteer",
@@ -55,7 +52,7 @@ const DashboardHome = () => {
     },
   });
 
-  //  Fetch donor's own recent donations
+  //  Fetch Donor's Recent Donations
   const { data: myDonations = [], isLoading: myDonationsLoading } = useQuery({
     queryKey: ["myDonations", user?.email],
     enabled: role === "donor" && !!user?.email,
@@ -65,23 +62,48 @@ const DashboardHome = () => {
     },
   });
 
+  //  Analytics Data (Only for Admin)
+  const { data: donationStats = [] } = useQuery({
+    queryKey: ["donationStats"],
+    enabled: role === "admin",
+    queryFn: async () => {
+      const res = await axiosSecure.get("/donations/stats");
+      return res.data.map((item) => ({
+        name: item._id,
+        value: item.count,
+      }));
+    },
+  });
+
+  const { data: fundStats = [] } = useQuery({
+    queryKey: ["fundStats"],
+    enabled: role === "admin",
+    queryFn: async () => {
+      const res = await axiosSecure.get("/funds/stats");
+      return res.data.map((item) => ({
+        name: `${item._id.month}/${item._id.year}`,
+        total: item.totalAmount,
+      }));
+    },
+  });
+
   if (usersLoading || donationsLoading || fundsLoading || myDonationsLoading) {
     return <p className="text-center text-gray-500">Loading dashboard...</p>;
   }
 
-  //  Calculate Stats
+  //  Calculate Totals
   const totalUsers = users.length;
   const totalDonations = donations.length;
   const totalFunds = funds.reduce((sum, fund) => sum + (fund.amount || 0), 0);
 
   return (
-    <div className="space-y-6">
-      {/* Welcome Message */}
+    <div className="space-y-8">
+    
       <h2 className="text-2xl font-bold">
         Welcome, {user?.displayName || "User"}! 👋
       </h2>
 
-      {/* Admin & Volunteer Stats */}
+      {/*  Admin & Volunteer Stats Cards */}
       {(role === "admin" || role === "volunteer") && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {/* Total Users */}
@@ -113,7 +135,53 @@ const DashboardHome = () => {
         </div>
       )}
 
-      {/* Donor Dashboard: Recent Donation Requests */}
+      {/*  Charts Section (Admin Only) */}
+      {role === "admin" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
+          {/* Pie Chart for Donation Status */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              Donation Requests by Status
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={donationStats}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                  label
+                >
+                  {donationStats.map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          {/* Line Chart for Monthly Funds */}
+          <div className="bg-white p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              Monthly Funds Trend
+            </h3>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={fundStats}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="total" stroke="#82ca9d" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/*  Donor Dashboard: Recent Donations */}
       {role === "donor" && myDonations.length > 0 && (
         <div className="mt-8">
           <h3 className="text-xl font-semibold mb-4">Your Recent Donation Requests</h3>
@@ -131,7 +199,9 @@ const DashboardHome = () => {
               {myDonations.map((donation) => (
                 <tr key={donation._id}>
                   <td>{donation.recipientName}</td>
-                  <td>{donation.recipientDistrict}, {donation.recipientUpazila}</td>
+                  <td>
+                    {donation.recipientDistrict}, {donation.recipientUpazila}
+                  </td>
                   <td>{donation.donationDate}</td>
                   <td>{donation.bloodGroup}</td>
                   <td>{donation.status}</td>
@@ -150,4 +220,5 @@ const DashboardHome = () => {
     </div>
   );
 };
+
 export default DashboardHome;
