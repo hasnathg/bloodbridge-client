@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
+import logo from '../../assets/logo4.JPG'
 import {
   Home,
   User,
@@ -95,7 +96,14 @@ const Sidebar = ({closeSidebar}) => {
 
 
     return (
-   
+
+   <div>
+
+    <div className='flex justify-between'>
+      <div><img src={logo} alt="logo" className='w-10 h-10' /></div>
+      <div className='text-red-700 font-bold pt-2 pr-2'>Blood Bridge</div>
+    </div>
+    
     <div className="p-4 pt-8">
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
         <Home size={20} /> Dashboard
@@ -151,6 +159,7 @@ const Sidebar = ({closeSidebar}) => {
         </div>
       )}
     </div>
+   </div>
     );
 };
 

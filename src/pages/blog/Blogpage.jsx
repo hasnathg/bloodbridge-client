@@ -4,8 +4,16 @@ import React, { useState } from 'react';
 import { Link } from 'react-router';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 
+//  reading time
+const calculateReadingTime = (htmlContent) => {
+  const text = htmlContent.replace(/<[^>]+>/g, ""); // Remove HTML tags
+  const words = text.trim().split(/\s+/).length;
+  const minutes = Math.ceil(words / 200); // Average 200 WPM
+  return `${minutes} min read`;
+};
+
 const Blogpage = () => {
-    const [search, setSearch] = useState("");
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const limit = 6;
 
@@ -26,10 +34,12 @@ const Blogpage = () => {
 
   const blogs = data?.data || [];
   const totalPages = Math.ceil((data?.total || 0) / limit);
-    return (
-        <div className="max-w-6xl mx-auto p-4">
+
+  return (
+    <div className="max-w-6xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">📝 Blood Bridge Blog</h1>
 
+      {/* Search Bar */}
       <div className="mb-6">
         <input
           type="text"
@@ -44,27 +54,39 @@ const Blogpage = () => {
       </div>
 
       {isLoading ? (
-        <LoadingSpinner></LoadingSpinner>
+        <LoadingSpinner />
       ) : blogs.length === 0 ? (
         <p>No blogs found.</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {blogs.map((blog) => (
             <div key={blog._id} className="border rounded shadow p-4 bg-white space-y-2">
+              {/* Thumbnail */}
               <img
                 src={blog.thumbnail}
                 alt={blog.title}
                 className="h-48 w-full object-cover rounded"
               />
+
+              {/* Blog Title */}
               <h3 className="text-xl font-semibold">{blog.title}</h3>
-              <p className="text-sm text-gray-500">
-                {new Date(blog.createdAt).toLocaleDateString()} by{" "}
-                {blog.authorEmail.split("@")[0]}
+
+              {/* Meta Info */}
+              <p className="text-sm text-gray-500 flex justify-between">
+                <span>{new Date(blog.createdAt).toLocaleDateString()}</span>
+                <span>{calculateReadingTime(blog.content)}</span>
               </p>
+
+              {/* Blog Preview */}
               <p className="text-sm text-gray-700 line-clamp-3">
                 {blog.content?.replace(/<[^>]+>/g, "").slice(0, 180)}...
               </p>
-              <Link to={`/blog/${blog._id}`} className="text-blue-600 font-medium">
+
+              {/* Read More */}
+              <Link
+                to={`/blog/${blog._id}`}
+                className="text-blue-600 font-medium hover:underline"
+              >
                 Read more →
               </Link>
             </div>
@@ -79,7 +101,9 @@ const Blogpage = () => {
             <button
               key={idx}
               onClick={() => setPage(idx + 1)}
-              className={`btn btn-sm ${page === idx + 1 ? "btn-primary" : "btn-outline"}`}
+              className={`btn btn-sm ${
+                page === idx + 1 ? "btn-primary" : "btn-outline"
+              }`}
             >
               {idx + 1}
             </button>
@@ -87,7 +111,7 @@ const Blogpage = () => {
         </div>
       )}
     </div>
-    );
+  );
 };
 
 export default Blogpage;

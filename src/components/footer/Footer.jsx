@@ -3,7 +3,8 @@ import { NavLink } from 'react-router';
 
 const Footer = () => {
     return (
-        <footer className="footer footer-horizontal footer-center bg-gradient-to-r from-red-800 to-gray-900 text-white rounded-2xl p-10 max-w-7xl mx-auto">
+        <footer className="footer footer-horizontal footer-center bg-gradient-to-r from-red-600 to-gray-600 text-white rounded-2xl p-10 max-w-7xl mx-auto">
+          
   <nav className="grid grid-flow-col gap-4">
     <NavLink className="link link-hover">About us</NavLink>
     <NavLink className="link link-hover">Contact</NavLink>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link, useNavigate, useParams } from 'react-router';
+import React, {useState} from 'react';
+import { Link, useParams, useNavigate } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import { useMutation, useQuery} from '@tanstack/react-query';
 import toast from 'react-hot-toast';
@@ -21,11 +21,14 @@ const getStatusColor = (status) => {
   }
 };
 
-const DonationDetails = () => {
+const DonationDetails = () =>   {
   const { id } = useParams();
   const { user, role } = useAuth();
   const navigate = useNavigate();
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // ✅ Fetch donation details
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["donation-details", id],
     queryFn: async () => {
@@ -35,29 +38,31 @@ const DonationDetails = () => {
     enabled: !!id,
   });
 
+  // ✅ Mutation for confirming donation
   const confirmDonationMutation = useMutation({
-    mutationFn: async () => axiosSecure.patch(`/donations/${id}/status`, {
-  status: "inprogress",
-  donorName: user.displayName,
-  donorEmail: user.email,
-}),
+    mutationFn: async () =>
+      axiosSecure.patch(`/donations/${id}/status`, {
+        status: "inprogress",
+        donorName: user.displayName,
+        donorEmail: user.email,
+      }),
     onSuccess: () => {
-      toast.success("You confirmed your donation!");
+      toast.success("Donation confirmed successfully!");
       refetch();
+      setIsModalOpen(false);
     },
-    onError: () => {
-      toast.error("Could not confirm donation");
-    },
+    onError: () => toast.error("Failed to confirm donation"),
   });
 
+  // ✅ Mutation for marking status as done/cancelled
   const handleStatusChange = async (newStatus) => {
     try {
       await axiosSecure.patch(`/donations/${id}/status`, {
-  status: newStatus,
-  donorName: user.displayName,
-  donorEmail: user.email,
-});
-      toast.success(`Marked as ${newStatus}`);
+        status: newStatus,
+        donorName: user.displayName,
+        donorEmail: user.email,
+      });
+      toast.success(`Status updated to ${newStatus}`);
       refetch();
     } catch (err) {
       console.error(err);
@@ -65,10 +70,8 @@ const DonationDetails = () => {
     }
   };
 
-
   if (isLoading) return <LoadingSpinner />;
-
-  if (!data) return <p>Request not found</p>;
+  if (!data) return <p className="text-center text-red-500">Request not found</p>;
 
   const {
     recipientName,
@@ -91,9 +94,10 @@ const DonationDetails = () => {
   const canDonate = role === "donor" && status === "pending";
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 pt-16 rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold">Donation Request Details</h2>
+    <div className="max-w-3xl mx-auto bg-white p-6 mt-8 rounded shadow space-y-4">
+      <h2 className="text-2xl font-bold mb-4">Donation Request Details</h2>
 
+      {/* Details */}
       <div className="grid gap-2">
         <p><strong>Recipient:</strong> {recipientName}</p>
         <p><strong>District:</strong> {recipientDistrict}</p>
@@ -103,7 +107,10 @@ const DonationDetails = () => {
         <p><strong>Blood Group:</strong> {bloodGroup}</p>
         <p><strong>Donation Date:</strong> {donationDate}</p>
         <p><strong>Donation Time:</strong> {donationTime}</p>
-        <p><strong>Status:</strong>{""} <span className={`badge ${getStatusColor(status)}`}>{status}</span></p>
+        <p>
+          <strong>Status:</strong>{" "}
+          <span className={`badge ${getStatusColor(status)}`}>{status}</span>
+        </p>
         <p><strong>Requester:</strong> {requesterName} ({requesterEmail})</p>
         <p><strong>Reason:</strong> {requestMessage}</p>
         {donorName && donorEmail && (
@@ -111,22 +118,32 @@ const DonationDetails = () => {
         )}
       </div>
 
+      {/* Owner actions */}
       {isOwner && (
         <div className="flex gap-2 mt-4">
-          <Link to={`/dashboard/edit-donation/${id}`} className="btn btn-sm btn-primary">Edit</Link>
+          <Link to={`/dashboard/edit-donation/${id}`} className="btn btn-sm btn-primary">
+            Edit
+          </Link>
         </div>
       )}
 
+      {/* Donate Button */}
       {canDonate && (
         <button
-          className="btn btn-sm btn-success mt-4"
-           onClick={() => confirmDonationMutation.mutate()}
-          disabled={confirmDonationMutation.isLoading}
+          className="btn btn-success mt-4"
+          onClick={() => {
+            if (!user) {
+              navigate("/login");
+              return;
+            }
+            setIsModalOpen(true);
+          }}
         >
-          {confirmDonationMutation.isLoading ? "Updating..." : "I want to Donate"}
+          I Want to Donate
         </button>
       )}
-     
+
+      {/* Status Change for Owner */}
       {isOwner && status === "inprogress" && (
         <div className="flex gap-2 mt-4">
           <button
@@ -144,6 +161,50 @@ const DonationDetails = () => {
         </div>
       )}
 
+      {/* ✅ Donation Confirmation Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">
+            <h3 className="text-lg font-bold mb-4">Confirm Donation</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold">Donor Name</label>
+                <input
+                  type="text"
+                  value={user.displayName}
+                  readOnly
+                  className="input input-bordered w-full"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold">Donor Email</label>
+                <input
+                  type="text"
+                  value={user.email}
+                  readOnly
+                  className="input input-bordered w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 mt-6">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setIsModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={() => confirmDonationMutation.mutate()}
+                disabled={confirmDonationMutation.isLoading}
+              >
+                {confirmDonationMutation.isLoading ? "Processing..." : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

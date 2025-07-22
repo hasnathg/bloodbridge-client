@@ -18,6 +18,7 @@ const SearchDonorPage = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const [isSearched, setIsSearched] = useState(false);
   const limit = 5;
 
   //  Fetch districts and upazilas from public folder
@@ -58,17 +59,22 @@ const SearchDonorPage = () => {
     }
   }, [bloodGroup, district, upazila, page]);
 
-  useEffect(() => {
+ //  Search button click
+  const handleSearch = () => {
+    setIsSearched(true);
+    setPage(1);
     fetchDonors();
-  }, [fetchDonors]);
+  };
 
   //  Reset filters
   const resetFilters = () => {
     setBloodGroup("");
     setDistrict("");
     setUpazila("");
+    setResults([]);
+    setTotal(0);
     setPage(1);
-    fetchDonors();
+    setIsSearched(false);
   };
 
   //  Download PDF
@@ -155,7 +161,7 @@ const SearchDonorPage = () => {
         </select>
 
         <div className="flex gap-2">
-          <button onClick={() => fetchDonors()} className="btn btn-primary w-full">
+          <button onClick={handleSearch} className="btn btn-primary w-full">
             Search
           </button>
           <button onClick={resetFilters} className="btn btn-secondary">
@@ -164,65 +170,70 @@ const SearchDonorPage = () => {
         </div>
       </div>
 
-      {/* Results */}
-      <div className="flex justify-between items-center mb-4">
-        <p className="font-semibold">
-          {total} donors found
-        </p>
-        {results.length > 0 && (
-          <button onClick={downloadPDF} className="btn btn-success btn-sm">
-            Download PDF
-          </button>
-        )}
-      </div>
-
+     {/* Results */}
       {loading ? (
-        <LoadingSpinner></LoadingSpinner>
-      ) : results.length === 0 ? (
-        <p className="text-center text-gray-500">No donors found.</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="table w-full text-sm">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Blood Group</th>
-                <th>District</th>
-                <th>Upazila</th>
-                <th>Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.map((donor) => (
-                <tr key={donor._id}>
-                  <td className="font-semibold">{donor.name}</td>
-                  <td>{donor.bloodGroup}</td>
-                  <td>{getDistrictName(donor.district)}</td>
-                  <td>{donor.upazila}</td>
-                  <td>{donor.email}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        <LoadingSpinner />
+      ) : isSearched ? (
+        results.length > 0 ? (
+          <>
+            <div className="flex justify-between items-center mb-4">
+              <p className="font-semibold">{total} donors found</p>
+              <button onClick={downloadPDF} className="btn btn-success btn-sm">
+                Download PDF
+              </button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="table w-full text-sm">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Blood Group</th>
+                    <th>District</th>
+                    <th>Upazila</th>
+                    <th>Email</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {results.map((donor) => (
+                    <tr key={donor._id}>
+                      <td className="font-semibold">{donor.name}</td>
+                      <td>{donor.bloodGroup}</td>
+                      <td>{getDistrictName(donor.district)}</td>
+                      <td>{donor.upazila}</td>
+                      <td>{donor.email}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center mt-4 gap-2">
-          {[...Array(totalPages)].map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setPage(idx + 1)}
-              className={`btn btn-sm ${page === idx + 1 ? "btn-primary" : "btn-outline"}`}
-            >
-              {idx + 1}
-            </button>
-          ))}
-        </div>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-4 gap-2">
+                {[...Array(totalPages)].map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setPage(idx + 1);
+                      fetchDonors();
+                    }}
+                    className={`btn btn-sm ${
+                      page === idx + 1 ? "btn-primary" : "btn-outline"
+                    }`}
+                  >
+                    {idx + 1}
+                  </button>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-center text-gray-500">No donors found.</p>
+        )
+      ) : (
+        <p className="text-center text-gray-500">Please use the filters and click Search.</p>
       )}
     </div>
   );
 };
-
 export default SearchDonorPage;
