@@ -28,11 +28,11 @@ const Sidebar = ({closeSidebar}) => {
       to: "/dashboard/profile",
       icon: <User size={18} />,
     },
-    {
-      name: 'Funding',
-      to: '/funding',
-      icon: <DollarSign size={18} />,
-    },
+    // {
+    //   name: 'Funding',
+    //   to: '/funding',
+    //   icon: <DollarSign size={18} />,
+    // },
   ];
 
   const adminLinks = [
@@ -97,14 +97,17 @@ const Sidebar = ({closeSidebar}) => {
 
     return (
 
-   <div>
+   <div className='pb-30'>
 
-    <div className='flex justify-between'>
-      <div><img src={logo} alt="logo" className='w-10 h-10' /></div>
-      <div className='text-red-700 font-bold pt-2 pr-2'>Blood Bridge</div>
-    </div>
+    <div className="py-16 flex flex-col items-center justify-center text-center bg-gray-100">
+  <NavLink to="/" className="flex flex-col items-center">
+    <img src={logo} alt="logo" className="w-10 h-10" />
+    <span className="text-red-700 font-bold pt-2 text-2xl">Blood Bridge</span>
+  </NavLink>
+</div>
+
     
-    <div className="p-4 pt-8">
+    <div className="p-4 pt-8 bg-gray-50 ">
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
         <Home size={20} /> Dashboard
       </h2>

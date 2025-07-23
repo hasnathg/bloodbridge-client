@@ -13,12 +13,13 @@ const Banner = () => {
     />
   </figure>
   <div className="card-body p-4 text-center justify-center pt-24">
-    <h3 className=" text-center text-2xl font-bold text-red-500">Welcome to BloodBridge</h3>
-    <h2 className=" text-center text-lg font-semibold">Connecting Donors, Saving Lives</h2>
+    <h3 className=" text-center text-5xl font-bold text-red-500">Welcome to BloodBridge</h3>
+    
+    <h2 className=" text-center text-2xl font-semibold pt-16">Connecting Donors, Saving Lives</h2>
     <p className="text-sm max-w-md text-center mx-auto ">A reliable platform for blood donation and emergency support.</p>
-    <div className="card-actions flex justify-center pb-16">
-      <NavLink to ="/register"><button className="btn btn-outline btn-sm  text-red-500 border-white ">Join as a donor</button></NavLink>
-      <NavLink to="/search"><button className="btn btn-outline btn-sm text-red-500 border-white">Search donors</button></NavLink>
+    <div className="card-actions gap-8 flex justify-center pb-16">
+      <NavLink to ="/register"><button className="btn btn-outline btn-sm text-lg  text-red-500 border-white ">Join as a donor</button></NavLink>
+      <NavLink to="/search"><button className="btn btn-outline btn-sm text-lg text-red-500 border-white">Search donors</button></NavLink>
     </div>
   </div>
 </div>

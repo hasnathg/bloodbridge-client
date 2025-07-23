@@ -1,9 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import axiosSecure from '../../utilities/axiosSecure';
 import { jsPDF } from "jspdf";
 import logo from '../../assets/logo4.JPG'
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import autoTable from "jspdf-autotable";
+import axios from 'axios';
+import { useAuth } from '../../provider/AuthContext';
 
 
 
@@ -21,7 +22,9 @@ const SearchDonorPage = () => {
   const [isSearched, setIsSearched] = useState(false);
   const limit = 5;
 
-  //  Fetch districts and upazilas from public folder
+  const { user } = useAuth();
+
+  //  Fetch districts and upazilas 
   useEffect(() => {
     fetch("/data/districts.json")
       .then((res) => res.json())
@@ -32,38 +35,47 @@ const SearchDonorPage = () => {
       .then((data) => setUpazilas(data));
   }, []);
 
+   // get district name
   const getDistrictName = (id) => {
-    const d = districts.find((dist) => dist.id === id);
+    const d = districts.find((dist) => String(dist.id) === String(id));
     return d ? d.name : id;
   };
 
-  //  Fetch donors from API
-  const fetchDonors = useCallback(async () => {
+  //  Fetch donations 
+  const fetchDonations = useCallback(async () => {
     setLoading(true);
     try {
+      const selectedDistrictName = district
+        ? districts.find((d) => String(d.id) === String(district))?.name
+        : "";
+
       const params = {
         bloodGroup,
-        district,
+        district: selectedDistrictName || "",
         upazila,
-        role: "donor",
         page,
         limit,
       };
-      const { data } = await axiosSecure.get("/users", { params });
+
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/donations/public`,
+        { params }
+      );
       setResults(data.data || []);
       setTotal(data.total || 0);
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching donations:", error);
     } finally {
       setLoading(false);
     }
-  }, [bloodGroup, district, upazila, page]);
+  }, [bloodGroup, district, upazila, page, districts]);
 
- //  Search button click
+
+ //  Search button
   const handleSearch = () => {
     setIsSearched(true);
     setPage(1);
-    fetchDonors();
+    fetchDonations();
   };
 
   //  Reset filters
@@ -90,12 +102,14 @@ const SearchDonorPage = () => {
     doc.addImage(logo, "JPEG", 160, 10, 30, 20);
 
     const tableColumn = ["Name", "Blood Group", "District", "Upazila", "Email"];
-    const tableRows = results.map((donor) => [
-      donor.name,
-      donor.bloodGroup,
-      getDistrictName(donor.district),
-      donor.upazila,
-      donor.email,
+    
+
+     const tableRows = results.map((donation) => [
+      donation.recipientName,
+      donation.bloodGroup,
+      donation.recipientDistrict || "Not Provided",
+      donation.recipientUpazila || "Not Provided",
+      donation.requesterEmail,
     ]);
 
     autoTable(doc, {
@@ -107,14 +121,25 @@ const SearchDonorPage = () => {
     doc.save("donor-report.pdf");
   };
 
+   if (!user) {
+    return (
+      <div className="text-center mt-10">
+        <p className="text-lg pb-36">You are logged out. Please <a href="/login" className="text-red-800 underline ">Login</a>.</p>
+      </div>
+    );
+  }
+
   const totalPages = Math.ceil(total / limit);
 
+
+
+
   return (
-    <div className="max-w-6xl mx-auto p-4 bg-white shadow rounded mt-6">
+    <div className="max-w-7xl mx-auto p-4 bg-gray-50 shadow rounded mt-6 pb-32">
       <h2 className="text-2xl font-bold mb-6 text-center">Search Donors</h2>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 ">
         <select
           className="select select-bordered"
           value={bloodGroup}
@@ -161,7 +186,7 @@ const SearchDonorPage = () => {
         </select>
 
         <div className="flex gap-2">
-          <button onClick={handleSearch} className="btn btn-primary w-full">
+          <button onClick={handleSearch} className="btn btn-accent text-black">
             Search
           </button>
           <button onClick={resetFilters} className="btn btn-secondary">
@@ -194,13 +219,13 @@ const SearchDonorPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {results.map((donor) => (
-                    <tr key={donor._id}>
-                      <td className="font-semibold">{donor.name}</td>
-                      <td>{donor.bloodGroup}</td>
-                      <td>{getDistrictName(donor.district)}</td>
-                      <td>{donor.upazila}</td>
-                      <td>{donor.email}</td>
+                  {results.map((donation) => (
+                    <tr key={donation._id}>
+                      <td className="font-semibold">{donation.recipientName}</td>
+                      <td>{donation.bloodGroup}</td>
+                      <td>{donation.recipientDistrict || "Not Provided"}</td>
+                      <td>{donation.recipientUpazila || "Not Provided"}</td>
+                      <td>{donation.requesterEmail}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -215,10 +240,10 @@ const SearchDonorPage = () => {
                     key={idx}
                     onClick={() => {
                       setPage(idx + 1);
-                      fetchDonors();
+                      fetchDonations();
                     }}
                     className={`btn btn-sm ${
-                      page === idx + 1 ? "btn-primary" : "btn-outline"
+                      page === idx + 1 ? "btn-accent" : "btn-outline"
                     }`}
                   >
                     {idx + 1}

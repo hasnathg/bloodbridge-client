@@ -40,13 +40,13 @@ const CreateDonationRequest = () =>  {
       return;
     }
 
-    const selectedDistrictName = districts.find(
-    (d) => d.id === parseInt(data.recipientDistrict)
-  )?.name;
+   const selectedDistrictName =
+    districts.find((d) => String(d.id) === String(data.recipientDistrict))?.name ||
+    data.recipientDistrict; 
 
-  const selectedUpazilaName = upazilas.find(
-    (u) => u.name === data.recipientUpazila
-  )?.name;
+  const selectedUpazilaName =
+    upazilas.find((u) => u.name === data.recipientUpazila)?.name ||
+    data.recipientUpazila;
 
     const donationData = {
       requesterName: user.displayName,
@@ -184,7 +184,7 @@ const CreateDonationRequest = () =>  {
           rows={4}
         ></textarea>
 
-        <button type="submit" className="btn btn-primary w-full">
+        <button type="submit" className="btn btn-accent text-black w-full">
           Request
         </button>
       </form>

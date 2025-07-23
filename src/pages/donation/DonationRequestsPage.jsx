@@ -48,7 +48,7 @@ const DonationRequestsPage = () => {
   const totalPages = Math.ceil(total / limit);
 
   return (
-    <div className="max-w-7xl mx-auto p-4 bg-white rounded shadow mt-6">
+    <div className="max-w-7xl mx-auto p-4 bg-gray-50 rounded shadow mt-6">
       <h2 className="text-2xl font-bold mb-4 text-center">
         Pending Blood Donation Requests
       </h2>
@@ -93,7 +93,7 @@ const DonationRequestsPage = () => {
                     <td className="text-right">
                       <Link
                         to={`/donation-request/${req._id}`}
-                        className="btn btn-sm btn-primary"
+                        className="btn btn-sm btn-accent text-black"
                       >
                         View Details
                       </Link>
@@ -132,7 +132,7 @@ const DonationRequestsPage = () => {
                 </p>
                 <Link
                   to={`/donation-request/${req._id}`}
-                  className="btn btn-primary btn-sm mt-2"
+                  className="btn btn-accent btn-sm mt-2"
                 >
                   View Details
                 </Link>
@@ -148,7 +148,7 @@ const DonationRequestsPage = () => {
                   key={idx}
                   onClick={() => setPage(idx + 1)}
                   className={`btn btn-sm ${
-                    page === idx + 1 ? "btn-primary" : "btn-outline"
+                    page === idx + 1 ? "btn-accent" : "btn-outline"
                   }`}
                 >
                   {idx + 1}

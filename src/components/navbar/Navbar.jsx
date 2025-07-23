@@ -2,14 +2,17 @@ import React from 'react';
 import logo from '../../assets/logo4.JPG'
 import { NavLink } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
     const { user, logoutUser } = useAuth(); 
     const handleLogout = async () => {
     try {
       await logoutUser();
+       toast.success("Logged out successfully!");
     } catch (err) {
       console.error("Logout failed:", err);
+      toast.error("Logout failed. Try again!");
     }
   };
 
@@ -22,7 +25,7 @@ const Navbar = () => {
   );
 
     return (
- <div className="navbar bg-base-100 shadow-sm">
+ <div className="navbar bg-base-100 shadow-sm font-bold text-4xl text-center">
       {/* Navbar Start */}
       <div className="navbar-start">
         <div className="dropdown">

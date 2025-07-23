@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router';
 import {useAuth} from '../../provider/AuthContext'
 import { auth } from '../../firebase/firebase.init';
 import { updateProfile } from 'firebase/auth';
+import toast from 'react-hot-toast';
 
 const Register = () => {
   const { registerUser, setUser, createJWT} = useAuth();
@@ -87,10 +88,12 @@ const Register = () => {
     localStorage.setItem("token", jwtRes.token);
 
     // Navigate
+    toast.success("Registration successful! ✅");
     navigate("/");
   } catch (err) {
     console.error(err);
     setErrMsg("Registration failed. Try again.");
+    toast.error("Registration failed. Try again."); 
   } finally {
     setLoading(false);
   }
@@ -198,7 +201,7 @@ const Register = () => {
 
         <button
           type="submit"
-          className="btn btn-primary w-full"
+          className="btn btn-accent w-full"
           disabled={loading}
         >
           {loading ? "Registering..." : "Register"}

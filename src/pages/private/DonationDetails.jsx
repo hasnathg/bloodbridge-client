@@ -28,7 +28,7 @@ const DonationDetails = () =>   {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // ✅ Fetch donation details
+  //  Fetch donation details
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["donation-details", id],
     queryFn: async () => {
@@ -38,7 +38,7 @@ const DonationDetails = () =>   {
     enabled: !!id,
   });
 
-  // ✅ Mutation for confirming donation
+  //  Mutation for confirming donation
   const confirmDonationMutation = useMutation({
     mutationFn: async () =>
       axiosSecure.patch(`/donations/${id}/status`, {
@@ -54,7 +54,7 @@ const DonationDetails = () =>   {
     onError: () => toast.error("Failed to confirm donation"),
   });
 
-  // ✅ Mutation for marking status as done/cancelled
+  //  Mutation for marking status as done/cancelled
   const handleStatusChange = async (newStatus) => {
     try {
       await axiosSecure.patch(`/donations/${id}/status`, {
@@ -94,11 +94,11 @@ const DonationDetails = () =>   {
   const canDonate = role === "donor" && status === "pending";
 
   return (
-    <div className="max-w-3xl mx-auto bg-white p-6 mt-8 rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold mb-4">Donation Request Details</h2>
+    <div className="max-w-6xl mx-auto bg-gray-50 p-16 mt-8 rounded shadow space-y-4">
+      <h2 className="text-2xl font-bold mb-4 text-center">Donation Request Details</h2>
 
       {/* Details */}
-      <div className="grid gap-2">
+      <div className="grid gap-2 px-32 pt-8 text-lg">
         <p><strong>Recipient:</strong> {recipientName}</p>
         <p><strong>District:</strong> {recipientDistrict}</p>
         <p><strong>Upazila:</strong> {recipientUpazila}</p>
@@ -161,7 +161,7 @@ const DonationDetails = () =>   {
         </div>
       )}
 
-      {/* ✅ Donation Confirmation Modal */}
+      {/*  Donation Confirmation Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-lg">

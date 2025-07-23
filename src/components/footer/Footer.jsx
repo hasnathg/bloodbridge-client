@@ -3,12 +3,12 @@ import { NavLink } from 'react-router';
 
 const Footer = () => {
     return (
-        <footer className="footer footer-horizontal footer-center bg-gradient-to-r from-red-600 to-gray-600 text-white rounded-2xl p-10 max-w-7xl mx-auto">
+        <footer className="mt-4 footer footer-horizontal footer-center bg-gradient-to-r from-gray-50 to-gray-100  rounded-2xl p-10 max-w-7xl mx-auto text-black font-bold">
           
   <nav className="grid grid-flow-col gap-4">
-    <NavLink className="link link-hover">About us</NavLink>
-    <NavLink className="link link-hover">Contact</NavLink>
-    <NavLink className="link link-hover">Jobs</NavLink>
+    <NavLink to="/about" className="link link-hover">About us</NavLink>
+    <NavLink to="/contact" className="link link-hover">Contact</NavLink>
+    <NavLink to="/job" className="link link-hover">Jobs</NavLink>
     
   </nav>
   <nav>

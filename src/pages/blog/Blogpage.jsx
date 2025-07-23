@@ -36,7 +36,7 @@ const Blogpage = () => {
   const totalPages = Math.ceil((data?.total || 0) / limit);
 
   return (
-    <div className="max-w-6xl mx-auto p-4">
+    <div className="max-w-6xl mx-auto p-4 bg-gray-50">
       <h1 className="text-3xl font-bold mb-6">📝 Blood Bridge Blog</h1>
 
       {/* Search Bar */}
@@ -85,7 +85,7 @@ const Blogpage = () => {
               {/* Read More */}
               <Link
                 to={`/blog/${blog._id}`}
-                className="text-blue-600 font-medium hover:underline"
+                className="text-red-600 font-medium hover:underline"
               >
                 Read more →
               </Link>

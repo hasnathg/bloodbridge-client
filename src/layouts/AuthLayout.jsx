@@ -14,7 +14,7 @@ const AuthLayout = () => {
     <div className='flex-1'>
          <img
       src= {authlogo}
-      className="max-w-sm rounded-lg shadow-2xl"
+      className=" rounded-lg shadow-2xl"
     />
     </div>
     <div className='flex-1'>

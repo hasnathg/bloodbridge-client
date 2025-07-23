@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import { auth } from '../../firebase/firebase.init';
+import toast from 'react-hot-toast';
 
 
 
@@ -24,11 +25,13 @@ const Login = () => {
             await auth.currentUser.reload();
             const updatedUser = auth.currentUser;
             setUser(updatedUser);
+             toast.success("Login successful! 🎉");
 
             navigate("/");
         } catch (err) {
             console.error(err);
             setErrMsg("Invalid email or password.");
+            toast.error("Invalid email or password.");
 
         } finally {
             setLoading(false);

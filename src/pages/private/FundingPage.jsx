@@ -6,6 +6,9 @@ import toast from 'react-hot-toast';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import axiosSecure from '../../utilities/axiosSecure';
+import { NavLink } from 'react-router';
+import Footer from '../../components/footer/Footer';
+import Navbar from '../../components/navbar/Navbar';
 
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PK);
@@ -69,7 +72,7 @@ const PaymentForm = ({ amount, onSuccess, onClose }) => {
       <button
         type="submit"
         disabled={!stripe || isProcessing}
-        className="btn btn-primary w-full"
+        className="btn btn-accent text-black w-full"
       >
         {isProcessing ? "Processing..." : `Pay $${amount}`}
       </button>
@@ -101,10 +104,12 @@ const FundingPage = () => {
   const handleSuccess = () => refetch();
 
   return (
-    <div className="max-w-4xl mx-auto bg-white p-6 rounded shadow mt-8">
+   <div>
+    <Navbar></Navbar>
+     <div className="max-w-4xl mx-auto bg-gray-50 p-6 rounded shadow mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Funding Page</h2>
-        <button onClick={() => setIsOpen(true)} className="btn btn-sm btn-primary">
+        <button onClick={() => setIsOpen(true)} className="btn btn-active btn-accent text-black">
           Give Fund
         </button>
       </div>
@@ -149,7 +154,7 @@ const FundingPage = () => {
               key={i}
               onClick={() => setPage(i + 1)}
               className={`btn btn-sm ${
-                page === i + 1 ? "btn-primary" : "btn-outline"
+                page === i + 1 ? "btn-active btn-accent" : "btn-outline"
               }`}
             >
               {i + 1}
@@ -187,6 +192,8 @@ const FundingPage = () => {
         </div>
       )}
     </div>
+    <Footer></Footer>
+   </div>
   );
 };
 export default FundingPage;

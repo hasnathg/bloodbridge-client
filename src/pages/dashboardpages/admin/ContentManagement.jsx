@@ -48,7 +48,7 @@ const ContentManagement = () => {
         {(role === "admin" || role === "volunteer") && (
           <Link
             to="/dashboard/content-management/add-blog"
-            className="btn btn-sm btn-primary"
+            className="btn btn-sm btn-accent text-black"
           >
             Add Blog
           </Link>

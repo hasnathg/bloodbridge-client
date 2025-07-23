@@ -43,12 +43,12 @@ const AllDonations = () => {
     keepPreviousData: true,
   });
 
-  const handleStatusUpdate = async (id, newStatus) => {
+  const handleStatusUpdate = async (id, newStatus, existingDonor) => {
     try {
       await axiosSecure.patch(`/donations/${id}/status`, {
       status: newStatus,
-      donorName: user.displayName,
-      donorEmail: user.email,
+      donorName: existingDonor?.donorName || null,
+        donorEmail: existingDonor?.donorEmail || null,
     });
       toast.success(`Marked as ${newStatus}`);
       refetch();
@@ -140,19 +140,20 @@ const AllDonations = () => {
                         '—'
                       )}
                     </td>
-                    <td className="text-right space-x-2">
-                      {/* View */}
-                      <Link to={`/donation-request/${req._id}`} className="btn btn-sm btn-info">
+                    <td className="text-right">
+                     <div className="flex flex-wrap gap-2 justify-end">
+                       {/* View */}
+                      <Link to={`/donation-request/${req._id}`} className="btn btn-xs btn-info">
                         View
                       </Link>
 
                       {/* Edit/Delete for admin only */}
                       {role === 'admin' && (
                         <>
-                          <Link to={`/dashboard/edit-donation/${req._id}`} className="btn btn-sm">
+                          <Link to={`/dashboard/edit-donation/${req._id}`} className="btn btn-xs">
                             Edit
                           </Link>
-                          <button onClick={() => handleDelete(req._id)} className="btn btn-sm btn-error">
+                          <button onClick={() => handleDelete(req._id)} className="btn btn-xs btn-error">
                             Delete
                           </button>
                         </>
@@ -162,19 +163,20 @@ const AllDonations = () => {
                       {req.status === 'inprogress' && (
                         <>
                           <button
-                            onClick={() => handleStatusUpdate(req._id, 'done')}
-                            className="btn btn-sm btn-success"
+                            onClick={() => handleStatusUpdate(req._id, 'done', req)}
+                            className="btn btn-xs btn-success"
                           >
                             Done
                           </button>
                           <button
-                            onClick={() => handleStatusUpdate(req._id, 'cancelled')}
-                            className="btn btn-sm btn-warning"
+                            onClick={() => handleStatusUpdate(req._id, 'cancelled',req)}
+                            className="btn btn-xs btn-warning"
                           >
                             Cancel
                           </button>
                         </>
                       )}
+                     </div>
                     </td>
                   </tr>
                 ))}
@@ -189,7 +191,7 @@ const AllDonations = () => {
                 <button
                   key={idx}
                   onClick={() => setPage(idx + 1)}
-                  className={`btn btn-sm ${currentPage === idx + 1 ? 'btn-primary' : 'btn-outline'}`}
+                  className={`btn btn-sm ${currentPage === idx + 1 ? 'btn-active btn-accent' : 'btn-outline'}`}
                 >
                   {idx + 1}
                 </button>

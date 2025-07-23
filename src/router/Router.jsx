@@ -22,6 +22,9 @@ import FundingPage from "../pages/private/FundingPage";
 import DonationDetails from "../pages/private/DonationDetails";
 import EditDonation from "../pages/dashboardpages/EditDonation";
 import BlogDetails from "../pages/blog/BlogDetails";
+import AboutUs from "../pages/public/AboutUs";
+import Contact from "../pages/public/Contact";
+import Job from "../pages/public/Job";
 
 
 
@@ -35,6 +38,9 @@ export const router = createBrowserRouter([
       { path: "blog", element: <Blogpage /> },
       { path: "blog/:id", element: <BlogDetails /> },
       { path: "search", element: <SearchDonorPage /> },
+      { path: "about", element: <AboutUs></AboutUs>},
+      { path: "contact", element: <Contact></Contact>},
+      { path: "job", element: <Job></Job>},
     ]
   },
   {
