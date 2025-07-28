@@ -45,6 +45,6 @@ A full-stack MERN blood donation platform that connects donors and recipients wi
 📦 Repositories & Links
 🖥️ Frontend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-client-side-hasnathg
 
-🧪 Backend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-server-side-hasnathg
+
 
 🌐 Live Site: https://bloodbridge-donate-blood.web.app
