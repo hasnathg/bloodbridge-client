@@ -25,6 +25,7 @@ import BlogDetails from "../pages/blog/BlogDetails";
 import AboutUs from "../pages/public/AboutUs";
 import Contact from "../pages/public/Contact";
 import Job from "../pages/public/Job";
+import PrivateLayout from "../layouts/PrivateLayout";
 
 
 
@@ -98,11 +99,15 @@ export const router = createBrowserRouter([
   },
 
   {
-    path: "/funding",
-    element: (
-      <PrivateRoute>
-        <FundingPage />
-      </PrivateRoute>
-    ),
-  },
+  path: "/",
+  element: (
+    <PrivateRoute>
+      <PrivateLayout />
+    </PrivateRoute>
+  ),
+  children: [
+    { path: "funding", element: <FundingPage /> },
+    
+  ],
+}
 ]);

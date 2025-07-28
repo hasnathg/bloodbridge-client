@@ -1,6 +1,7 @@
 import React from 'react';
 import donor from "../../assets/donation.jpg"
 import { FaHandHoldingHeart, FaUsers, FaHeartbeat } from 'react-icons/fa';
+import { NavLink } from 'react-router';
 
 const WhyDonate = () => {
     return (
@@ -54,14 +55,16 @@ const WhyDonate = () => {
               Improve your own health through regular donation
             </li>
           </ul>
-          <button className="mt-4 btn bg-red-700 text-white hover:bg-red-800 pb-2">
+          <NavLink to="/about">
+            <button className="my-4 btn bg-red-700 text-white hover:bg-red-800 pb-2">
             BloodBridge for you!
           </button>
+          </NavLink>
         </div>
       </div>
 
       {/* Bottom Wave */}
-      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none translate-y-1">
+      <div className="absolute bottom-0 left-0 w-full overflow-hidden leading-none translate-y-1 mt-2">
         <svg
           className="block w-full h-20"
           xmlns="http://www.w3.org/2000/svg"

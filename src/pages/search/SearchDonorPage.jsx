@@ -24,7 +24,7 @@ const SearchDonorPage = () => {
 
   const { user } = useAuth();
 
-  //  Fetch districts and upazilas 
+  //  Fetch districts and upazilas
   useEffect(() => {
     fetch("/data/districts.json")
       .then((res) => res.json())
@@ -35,13 +35,13 @@ const SearchDonorPage = () => {
       .then((data) => setUpazilas(data));
   }, []);
 
-   // get district name
+  //  Get district name by ID
   const getDistrictName = (id) => {
     const d = districts.find((dist) => String(dist.id) === String(id));
     return d ? d.name : id;
   };
 
-  //  Fetch donations 
+  //  Fetch donations with pagination
   const fetchDonations = useCallback(async () => {
     setLoading(true);
     try {
@@ -70,8 +70,7 @@ const SearchDonorPage = () => {
     }
   }, [bloodGroup, district, upazila, page, districts]);
 
-
- //  Search button
+  //  Search button
   const handleSearch = () => {
     setIsSearched(true);
     setPage(1);
@@ -89,57 +88,69 @@ const SearchDonorPage = () => {
     setIsSearched(false);
   };
 
-  //  Download PDF
-  const downloadPDF = () => {
-    const doc = new jsPDF();
+  //  Download PDF (Fetch ALL pages)
+  const downloadPDF = async () => {
+    try {
+      const selectedDistrictName = district
+        ? districts.find((d) => String(d.id) === String(district))?.name
+        : "";
 
-    doc.setFontSize(16);
-    doc.text("BloodBridge Donor Report", 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
+      //  Fetch all data 
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_API_URL}/donations/public`,
+        {
+          params: {
+            bloodGroup,
+            district: selectedDistrictName || "",
+            upazila,
+            page: 1,
+            limit: total || 1000, // Fetch all data or a large number
+          },
+        }
+      );
 
-    //  Add logo
-    doc.addImage(logo, "JPEG", 160, 10, 30, 20);
+      const allResults = data.data || [];
 
-    const tableColumn = ["Name", "Blood Group", "District", "Upazila", "Email"];
-    
+      //  Create PDF
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text("BloodBridge Donor Report", 14, 20);
+      doc.setFontSize(10);
+      doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 28);
 
-     const tableRows = results.map((donation) => [
-      donation.recipientName,
-      donation.bloodGroup,
-      donation.recipientDistrict || "Not Provided",
-      donation.recipientUpazila || "Not Provided",
-      donation.requesterEmail,
-    ]);
+      //  Add logo
+      doc.addImage(logo, "JPEG", 160, 10, 30, 20);
 
-    autoTable(doc, {
-    startY: 40,
-    head: [tableColumn],
-    body: tableRows,
-  });
+      const tableColumn = ["Name", "Blood Group", "District", "Upazila", "Email"];
+      const tableRows = allResults.map((donation) => [
+        donation.recipientName,
+        donation.bloodGroup,
+        donation.recipientDistrict || "Not Provided",
+        donation.recipientUpazila || "Not Provided",
+        donation.requesterEmail,
+      ]);
 
-    doc.save("donor-report.pdf");
+      autoTable(doc, {
+        startY: 40,
+        head: [tableColumn],
+        body: tableRows,
+        styles: { fontSize: 9 },
+      });
+
+      doc.save("donor-report.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
   };
 
-   if (!user) {
-    return (
-      <div className="text-center mt-10">
-        <p className="text-lg pb-36">You are logged out. Please <a href="/login" className="text-red-800 underline ">Login</a>.</p>
-      </div>
-    );
-  }
-
   const totalPages = Math.ceil(total / limit);
-
-
-
 
   return (
     <div className="max-w-7xl mx-auto p-4 bg-gray-50 shadow rounded mt-6 pb-32">
       <h2 className="text-2xl font-bold mb-6 text-center">Search Donors</h2>
 
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 ">
+      {/*  Filters */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <select
           className="select select-bordered"
           value={bloodGroup}
@@ -195,7 +206,7 @@ const SearchDonorPage = () => {
         </div>
       </div>
 
-     {/* Results */}
+      {/*  Results */}
       {loading ? (
         <LoadingSpinner />
       ) : isSearched ? (
@@ -232,7 +243,7 @@ const SearchDonorPage = () => {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/*  Pagination */}
             {totalPages > 1 && (
               <div className="flex justify-center mt-4 gap-2">
                 {[...Array(totalPages)].map((_, idx) => (
@@ -261,4 +272,5 @@ const SearchDonorPage = () => {
     </div>
   );
 };
+
 export default SearchDonorPage;

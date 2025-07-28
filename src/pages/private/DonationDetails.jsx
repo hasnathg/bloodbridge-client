@@ -95,7 +95,13 @@ const DonationDetails = () =>   {
 
   return (
     <div className="max-w-6xl mx-auto bg-gray-50 p-16 mt-8 rounded shadow space-y-4">
-      <h2 className="text-2xl font-bold mb-4 text-center">Donation Request Details</h2>
+      <div>
+        <div>
+          <h2 className="text-2xl font-bold mb-4 text-center">Donation Request Details</h2>
+        </div>
+      
+      </div>
+      
 
       {/* Details */}
       <div className="grid gap-2 px-32 pt-8 text-lg">
@@ -116,6 +122,14 @@ const DonationDetails = () =>   {
         {donorName && donorEmail && (
           <p><strong>Donor:</strong> {donorName} ({donorEmail})</p>
         )}
+      </div>
+      <div>
+          <Link
+                        to="/donation-request"
+                        className="inline-block text-red-800 hover:underline text-sm pl-100 mb-4 font-bold"
+                      >
+                        ← Previous Page
+                      </Link>
       </div>
 
       {/* Owner actions */}

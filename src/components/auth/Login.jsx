@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { NavLink, useNavigate } from 'react-router';
+import { NavLink, useLocation, useNavigate } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import { auth } from '../../firebase/firebase.init';
 import toast from 'react-hot-toast';
@@ -9,71 +9,82 @@ import toast from 'react-hot-toast';
 
 
 const Login = () => {
-     const { loginUser, setUser } = useAuth();
-    const {register,handleSubmit, formState: {errors}} = useForm();
-    const [errMsg, setErrMsg]= useState();
-    const [loading, setLoading]= useState(false);
-    const navigate = useNavigate();
+    const { loginUser, setUser } = useAuth();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+  const [errMsg, setErrMsg] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
-    const onSubmit = async (data) => {
-        setErrMsg("");
-        setLoading(true);
+  const onSubmit = async (data) => {
+    setErrMsg("");
+    setLoading(true);
 
-        try{
-            await loginUser(data.email, data.password);
+    try {
+      await loginUser(data.email, data.password);
+      await auth.currentUser.reload();
+      setUser(auth.currentUser);
+      toast.success("Login successful! 🎉");
 
-            await auth.currentUser.reload();
-            const updatedUser = auth.currentUser;
-            setUser(updatedUser);
-             toast.success("Login successful! 🎉");
+      navigate(from, { replace: true });
+    } catch (err) {
+      console.error(err);
+      setErrMsg("Invalid email or password.");
+      toast.error("Invalid email or password.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            navigate("/");
-        } catch (err) {
-            console.error(err);
-            setErrMsg("Invalid email or password.");
-            toast.error("Invalid email or password.");
+  return (
+    <>
+      <h2 className="text-3xl font-bold text-center mb-6">Login</h2>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Email */}
+        <input
+          type="email"
+          placeholder="Email"
+          {...register("email", { required: true })}
+          className="input input-bordered w-full"
+        />
+        {errors.email && <p className="text-red-500">Email is required</p>}
 
-        } finally {
-            setLoading(false);
+        {/* Password */}
+        <input
+          type="password"
+          placeholder="Password"
+          {...register("password", { required: true })}
+          className="input input-bordered w-full"
+        />
+        {errors.password && (
+          <p className="text-red-500">Password is required</p>
+        )}
 
-        }
-
-
-    };
-    
-    return (
-        <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow mt-10">
-             <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-                <input 
-                type="email" 
-                placeholder='email'
-                {...register("email",{required: true})} 
-                className="input input-bordered w-full"
-                />
-                {errors.email && <p className="text-red-500">Email is required</p>}
-
-                <input 
-                type="password"
-                placeholder='password'
-                {...register("password", {required: true})}
-                className="input input-bordered w-full"
-                 />
-                {errors.password && <p className="text-red-500">Password is required</p>}
-
-                <button type="submit" className="btn btn-primary w-full" disabled={loading}>
+        {/* Submit */}
+        <button
+          type="submit"
+          className="btn btn-primary w-full"
+          disabled={loading}
+        >
           {loading ? "Logging in..." : "Login"}
         </button>
 
-         {errMsg && <p className="text-red-500 text-center">{errMsg}</p>}
+        {errMsg && <p className="text-red-500 text-center">{errMsg}</p>}
 
-         <p className="text-center mt-2">
-          Don’t have an account? <NavLink to="/register" className="text-blue-500">Register</NavLink>
+        <p className="text-center mt-4">
+          Don’t have an account?{" "}
+          <NavLink to="/register" className="text-blue-500">
+            Register
+          </NavLink>
         </p>
-
-            </form>
-        </div>
-    );
+      </form>
+    </>
+  );
 };
 
 export default Login;

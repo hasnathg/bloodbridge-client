@@ -1,15 +1,17 @@
 import React from 'react';
 import logo from '../../assets/logo4.JPG'
-import { NavLink } from 'react-router';
+import { NavLink, useNavigate } from 'react-router';
 import { useAuth } from '../../provider/AuthContext';
 import toast from 'react-hot-toast';
 
 const Navbar = () => {
     const { user, logoutUser } = useAuth(); 
+    const navigate = useNavigate();
     const handleLogout = async () => {
     try {
       await logoutUser();
        toast.success("Logged out successfully!");
+       navigate("/", { replace: true });
     } catch (err) {
       console.error("Logout failed:", err);
       toast.error("Logout failed. Try again!");

@@ -2,9 +2,10 @@ import React from 'react';
 import { useAuth } from '../../provider/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
-import { Link } from 'react-router';
-import { DollarSign, Droplet, Users } from 'lucide-react';
+import { Link, NavLink,  } from 'react-router';
+import { DollarSign, Droplet, Users, Home } from 'lucide-react';
 import axiosSecure from '../../utilities/axiosSecure';
+
 import {
   PieChart,
   Pie,
@@ -21,38 +22,32 @@ import {
 
 const COLORS = ["#0088FE", "#FF8042", "#00C49F", "#FFBB28"];
 
+
 const DashboardHome = () => {
   const { user, role } = useAuth();
+  // const navigate = useNavigate();
 
-  // ✅ Fetch Users, Donations, and Funds for Cards
-  const { data: users = [], isLoading: usersLoading } = useQuery({
-    queryKey: ["users", role],
-    enabled: role === "admin" || role === "volunteer",
+  // Fetch Dashboard Stats (Top Cards)
+  const { data: stats, isLoading: statsLoading } = useQuery({
+    queryKey: ["dashboard-stats"],
+    enabled: role === "admin" || role === "volunteer", // Both can see cards
     queryFn: async () => {
-      const res = await axiosSecure.get("/users");
-      return res.data.data || [];
+      const res = await axiosSecure.get("/stats");
+      return res.data; // { totalUsers, totalDonations, totalFunds }
     },
   });
 
-  const { data: donations = [], isLoading: donationsLoading } = useQuery({
-    queryKey: ["donations", role],
-    enabled: role === "admin" || role === "volunteer",
+  //  Fetch Pie Chart data (ADMIN)
+  const { data: donationStatsData = [], isLoading: donationsLoading } = useQuery({
+    queryKey: ["donations-stats"],
+    enabled: role === "admin", 
     queryFn: async () => {
-      const res = await axiosSecure.get("/donations");
-      return res.data.data || [];
+      const res = await axiosSecure.get("/donations/stats");
+      return res.data; 
     },
   });
 
-  const { data: funds = [], isLoading: fundsLoading } = useQuery({
-    queryKey: ["funds", role],
-    enabled: role === "admin" || role === "volunteer",
-    queryFn: async () => {
-      const res = await axiosSecure.get("/funds");
-      return res.data.data || [];
-    },
-  });
-
-  //  Fetch Donor's Recent Donations
+  // Fetch donor's recent donations (For donor dashboard)
   const { data: myDonations = [], isLoading: myDonationsLoading } = useQuery({
     queryKey: ["myDonations", user?.email],
     enabled: role === "donor" && !!user?.email,
@@ -62,20 +57,7 @@ const DashboardHome = () => {
     },
   });
 
-  //  Compute Donation Stats Locally (Pie Chart)
-  const donationStatsData = React.useMemo(() => {
-    if (!donations.length) return [];
-    const statusCount = donations.reduce((acc, donation) => {
-      acc[donation.status] = (acc[donation.status] || 0) + 1;
-      return acc;
-    }, {});
-    return Object.entries(statusCount).map(([status, count]) => ({
-      name: status,
-      value: count
-    }));
-  }, [donations]);
-
-  //  Fetch Fund Stats for Line Chart
+  //  Fetch fund stats for line chart (Admin Only)
   const { data: fundStatsData = [], isLoading: fundStatsLoading } = useQuery({
     queryKey: ["fundStats"],
     enabled: role === "admin",
@@ -83,35 +65,37 @@ const DashboardHome = () => {
       const res = await axiosSecure.get("/funds/stats");
       return res.data.map(item => ({
         name: `${item._id.month}/${item._id.year}`,
-        total: item.totalAmount
+        total: item.totalAmount,
       }));
     },
   });
 
-  if (
-    usersLoading ||
-    donationsLoading ||
-    fundsLoading ||
-    myDonationsLoading ||
-    fundStatsLoading
-  ) {
-    return <p className="text-center text-gray-500">Loading dashboard...</p>;
+  if (statsLoading || donationsLoading || myDonationsLoading || fundStatsLoading) {
+    return <p className="text-center text-red-500 font-bold">Loading dashboard...</p>;
   }
 
-  //  Calculate Totals
-  const totalUsers = users.length;
-  const totalDonations = donations.length;
-  const totalFunds = funds.reduce((sum, f) => sum + (f.amount || 0), 0);
+  //  Get totals for cards
+  const totalUsers = stats?.totalUsers || 0;
+  const totalDonations = stats?.totalDonations || 0;
+  const totalFunds = stats?.totalFunds || 0;
 
   return (
     <div className="space-y-8">
-      {/* Welcome */}
-      <h2 className="text-2xl font-bold">Welcome, {user?.displayName || "User"}! 👋</h2>
+      {/* ✅ Top Section with Back to Home Button */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold">Welcome, {user?.displayName || "User"}! 👋</h2>
+        <NavLink
+          to="/"
+          className="btn btn-outline flex items-center gap-2"
+        >
+          <Home size={18} /> Go to Home
+        </NavLink>
+      </div>
 
-      {/*  Admin & Volunteer Stats */}
+      {/*  Admin & Volunteer  top cards */}
       {(role === "admin" || role === "volunteer") && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
+          <div className="bg-gray-50 p-6 rounded-lg shadow flex items-center gap-4">
             <Users size={32} className="text-blue-600" />
             <div>
               <h3 className="text-lg font-semibold">Total Users</h3>
@@ -137,11 +121,11 @@ const DashboardHome = () => {
         </div>
       )}
 
-      {/*  Charts Section for Admin */}
+      {/*  Charts Section (ADMIN) */}
       {role === "admin" && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
           {/* Pie Chart */}
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-gray-50 p-6 rounded-lg shadow">
             <h3 className="text-lg font-semibold mb-4 text-center">
               Donation Requests by Status
             </h3>
@@ -221,14 +205,9 @@ const DashboardHome = () => {
               ))}
             </tbody>
           </table>
-          <button
-            className="btn mt-4"
-            onClick={() =>
-              (window.location.href = "/dashboard/my-donation-requests")
-            }
-          >
-            View All Requests
-          </button>
+          <NavLink to="/dashboard/my-donation-requests" className="btn mt-4">
+  View All Requests
+</NavLink>
         </div>
       )}
     </div>

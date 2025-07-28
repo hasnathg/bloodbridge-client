@@ -20,7 +20,12 @@ const PrivateRoute = ({children}) => {
     );
   }
 
-  if (!user) return <Navigate to="/login" state={{ from: location }} replace />;
+  
+  if (!user) {
+   
+    sessionStorage.setItem("redirectAfterLogin", location.pathname);
+    return <Navigate to="/login" replace />;
+  }
 
   return children;
 };
