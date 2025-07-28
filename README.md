@@ -1,17 +1,15 @@
 🅱️ Blood Bridge
 A full-stack MERN blood donation platform that connects donors and recipients with role-based dashboards, secure authentication, and funding integration.
 
-🌐 Live Site
+🌐 **Live Site**  
 🔗 https://bloodbridge-donate-blood.web.app
 
-👤 Admin Credentials
-📧 Email: admin@gmail.com
+👤 **Admin Credentials**  
+📧 Email: admin@gmail.com  
 🔒 Password: A123456a
 
-🚀 Features Overview
-🧑‍💼 Role-based Dashboards (Admin / Donor / Volunteer)
+Features:
 
-🔐 Email-Password Auth via Firebase
 
 🩸 Donation Request System (Create / Edit / Delete / Track)
 
@@ -29,7 +27,7 @@ A full-stack MERN blood donation platform that connects donors and recipients wi
 
 📱 Fully Responsive UI
 
-🛠 Tech Stack
+
 ⚛️ Frontend: React, Firebase, TailwindCSS
 
 🌐 Backend: Node.js, Express.js, MongoDB
@@ -42,9 +40,10 @@ A full-stack MERN blood donation platform that connects donors and recipients wi
 
 🌍 Others: React Hook Form, Jodit Editor, ImageBB, React Query
 
+
 📦 Repositories & Links
 🖥️ Frontend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-client-side-hasnathg
 
 
 
-🌐 Live Site: https://bloodbridge-donate-blood.web.app
+
