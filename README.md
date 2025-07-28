@@ -1,12 +1,50 @@
-# React + Vite
+🅱️ Blood Bridge
+A full-stack MERN blood donation platform that connects donors and recipients with role-based dashboards, secure authentication, and funding integration.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+🌐 Live Site
+🔗 https://bloodbridge-donate-blood.web.app
 
-Currently, two official plugins are available:
+👤 Admin Credentials
+📧 Email: admin@gmail.com
+🔒 Password: A123456a
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🚀 Features Overview
+🧑‍💼 Role-based Dashboards (Admin / Donor / Volunteer)
 
-## Expanding the ESLint configuration
+🔐 Email-Password Auth via Firebase
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+🩸 Donation Request System (Create / Edit / Delete / Track)
+
+⚙️ User Management (Block / Role Change)
+
+📝 Blog Management with Rich Text Editor
+
+🔍 Donor Search by Blood Group & Location
+
+💳 Stripe Payment Integration for Fundraising
+
+🎯 React Query for smooth data fetching
+
+🛎️ Toast Notifications for all actions
+
+📱 Fully Responsive UI
+
+🛠 Tech Stack
+⚛️ Frontend: React, Firebase, TailwindCSS
+
+🌐 Backend: Node.js, Express.js, MongoDB
+
+🔒 Auth: Firebase, JWT
+
+💸 Payments: Stripe
+
+📦 Hosting: Firebase (Client) & Vercel (API)
+
+🌍 Others: React Hook Form, Jodit Editor, ImageBB, React Query
+
+📦 Repositories & Links
+🖥️ Frontend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-client-side-hasnathg
+
+🧪 Backend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-server-side-hasnathg
+
+🌐 Live Site: https://bloodbridge-donate-blood.web.app
