@@ -8,8 +8,20 @@ A full-stack MERN blood donation platform that connects donors and recipients wi
 📧 Email: admin@gmail.com  
 🔒 Password: A123456a
 
-Features:
+📌 Overview
+Blood Bridge streamlines the blood donation process by allowing users to:
 
+Create and manage blood donation requests
+
+Search donors by location and blood group
+
+Publish and manage blogs
+
+Support organizations through secure payments
+
+It offers role-based dashboards for Admin, Donor, and Volunteer, ensuring a tailored experience for each role.
+
+✨ Core Features
 
 🩸 Donation Request System (Create / Edit / Delete / Track)
 
@@ -28,21 +40,25 @@ Features:
 📱 Fully Responsive UI
 
 
-⚛️ Frontend: React, Firebase, TailwindCSS
+🛠 Technologies
+Frontend: React, Tailwind CSS, DaisyUI, React Router, Axios, Axios Secure, React Query
 
-🌐 Backend: Node.js, Express.js, MongoDB
+Backend: Node.js, Express.js, MongoDB, Mongoose, JWT
 
-🔒 Auth: Firebase, JWT
+Auth: Firebase Auth
 
-💸 Payments: Stripe
+Payments: Stripe
 
-📦 Hosting: Firebase (Client) & Vercel (API)
+Hosting/Deploy: Firebase (client), Vercel (API)
 
-🌍 Others: React Hook Form, Jodit Editor, ImageBB, React Query
+Others: React Hook Form, Jodit Editor, ImageBB
+
+📦 Dependencies
+Client: react, react-router-dom, tailwindcss, daisyui, axios, axios-secure, @tanstack/react-query, sweetalert2, react-hook-form, jodit-react
+Server: express, mongoose, jsonwebtoken, stripe, cors, dotenv
 
 
-📦 Repositories & Links
-🖥️ Frontend Repo: https://github.com/Programming-Hero-Web-Course4/b11a12-client-side-hasnathg
+
 
 
 
