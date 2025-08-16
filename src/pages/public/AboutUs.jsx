@@ -4,7 +4,7 @@ import { Link } from 'react-router';
 
 const AboutUs = () => {
     return (
-         <div className="bg-gray-50">
+         <div className="bg-gray-50 mt-2">
       {/* Hero Section */}
       <section className="bg-red-700 text-white text-center py-12">
         <h1 className="text-4xl md:text-5xl font-bold">About BloodBridge</h1>

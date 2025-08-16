@@ -12,7 +12,7 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <AuthProvider>
-      <div className='font-urbanist max-w-7xl mx-auto'>
+      <div className='font-urbanist'>
        <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
         <Toaster position="top-right" reverseOrder={false} />

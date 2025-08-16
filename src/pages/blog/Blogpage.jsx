@@ -36,7 +36,7 @@ const Blogpage = () => {
   const totalPages = Math.ceil((data?.total || 0) / limit);
 
   return (
-    <div className="max-w-6xl mx-auto p-4 bg-gray-50">
+    <div className="max-w-6xl mx-auto mt-2 p-4 bg-gray-50">
       <h1 className="text-3xl font-bold mb-6">📝 Blood Bridge Blog</h1>
 
       {/* Search Bar */}
