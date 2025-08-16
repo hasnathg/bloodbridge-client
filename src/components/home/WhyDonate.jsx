@@ -23,7 +23,8 @@ const WhyDonate = () => {
       </div>
 
       
-      <div className="relative py-16 container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      {/* <div className="relative py-16 container mx-auto px-6 md:px-12 grid grid-cols-1 md:grid-cols-2 gap-8 items-center"> */}
+      <div className="relative py-16 max-w-screen-xl mx-auto px-4 md:px-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         
         <div className="flex justify-center">
           <img

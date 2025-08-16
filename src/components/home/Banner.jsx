@@ -24,24 +24,26 @@ const Banner = () => {
 //   </div>
 // </div>
  <section className="max-w-screen-xl mx-auto px-4 md:px-6">
-      <div className="relative h-[420px] md:h-[520px] rounded-2xl overflow-hidden shadow-xl">
-        {/* image */}
+      <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-xl">
+        {/* Background image */}
         <img
           src={banner}
-          alt="Blood donation awareness"
+          alt="banner"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/10 to-transparent" />
 
-        {/* content */}
+        {/* Soft overlay only */}
+        <div className="absolute inset-0 bg-black/30" />
+
+        {/* Content (your original colors & text) */}
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
           <h3 className="text-5xl font-bold text-red-500">Welcome to BloodBridge</h3>
 
-          <h2 className="text-2xl font-semibold pt-8 md:pt-12 text-base-content">
+          <h2 className="text-2xl font-semibold pt-16">
             Connecting Donors, Saving Lives
           </h2>
-          <p className="text-sm max-w-md mx-auto mt-2 text-base-content/80">
+
+          <p className="text-sm max-w-md mx-auto">
             A reliable platform for blood donation and emergency support.
           </p>
 
