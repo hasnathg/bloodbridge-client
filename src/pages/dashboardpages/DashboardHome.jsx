@@ -1,10 +1,9 @@
-import React from 'react';
-import { useAuth } from '../../provider/AuthContext';
-import { useQuery } from '@tanstack/react-query';
-import LoadingSpinner from '../../components/spinner/LoadingSpinner';
-import { Link, NavLink,  } from 'react-router';
-import { DollarSign, Droplet, Users, Home } from 'lucide-react';
-import axiosSecure from '../../utilities/axiosSecure';
+import React, { useMemo } from "react";
+import { useAuth } from "../../provider/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { NavLink } from "react-router";
+import { DollarSign, Droplet, Users, Home } from "lucide-react";
+import axiosSecure from "../../utilities/axiosSecure";
 
 import {
   PieChart,
@@ -17,197 +16,282 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  BarChart,
+  Bar,
+  Legend,
 } from "recharts";
 
+// Status color palette (max 4 colors across app)
+const STATUS_COLORS = {
+  pending:   "#f59e0b", // amber
+  inprogress:"#3b82f6", // blue
+  done:      "#22c55e", // green
+  cancelled: "#ef4444", // red
+};
+const STATUS_ORDER = ["pending", "inprogress", "done", "cancelled"];
 
-const COLORS = ["#0088FE", "#FF8042", "#00C49F", "#FFBB28"];
-
+// Helper: format month/year label
+const monthLabel = (y, m) => {
+  try {
+    const d = new Date(Number(y), Number(m) - 1, 1);
+    return d.toLocaleString("en-US", { month: "short", year: "numeric" });
+  } catch {
+    return `${m}/${y}`;
+  }
+};
 
 const DashboardHome = () => {
   const { user, role } = useAuth();
-  // const navigate = useNavigate();
+  const isAdmin = role === "admin";
+  const isVolunteer = role === "volunteer";
+  const isDonor = role === "donor";
 
-  // Fetch Dashboard Stats (Top Cards)
+  // ========== Admin/Volunteer: top stats ==========
   const { data: stats, isLoading: statsLoading } = useQuery({
     queryKey: ["dashboard-stats"],
-    enabled: role === "admin" || role === "volunteer", // Both can see cards
+    enabled: isAdmin || isVolunteer,
     queryFn: async () => {
       const res = await axiosSecure.get("/stats");
       return res.data; // { totalUsers, totalDonations, totalFunds }
     },
   });
 
-  //  Fetch Pie Chart data (ADMIN)
-  const { data: donationStatsData = [], isLoading: donationsLoading } = useQuery({
+  // ========== Admin: pie of donation status ==========
+  const { data: donationStatsRaw = [], isLoading: donationsLoading } = useQuery({
     queryKey: ["donations-stats"],
-    enabled: role === "admin", 
+    enabled: isAdmin,
     queryFn: async () => {
       const res = await axiosSecure.get("/donations/stats");
-      return res.data; 
+      return res.data; // [{ name: 'pending'|'inprogress'|'done'|'cancelled', value: number }]
     },
   });
 
-  // Fetch donor's recent donations (For donor dashboard)
-  const { data: myDonations = [], isLoading: myDonationsLoading } = useQuery({
-    queryKey: ["myDonations", user?.email],
-    enabled: role === "donor" && !!user?.email,
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/donations?email=${user.email}&limit=3`);
-      return res.data.data || [];
-    },
-  });
+  // Normalize & order statuses for the pie
+  const donationStatsData = useMemo(() => {
+    if (!isAdmin) return [];
+    const byName = Object.fromEntries(donationStatsRaw.map(d => [d.name, d.value]));
+    return STATUS_ORDER.map(name => ({
+      name,
+      value: byName[name] || 0,
+      fill: STATUS_COLORS[name],
+    }));
+  }, [donationStatsRaw, isAdmin]);
 
-  //  Fetch fund stats for line chart (Admin Only)
+  // ========== Admin/Volunteer: funds line chart ==========
   const { data: fundStatsData = [], isLoading: fundStatsLoading } = useQuery({
     queryKey: ["fundStats"],
-    enabled: role === "admin",
+    enabled: isAdmin || isVolunteer,
     queryFn: async () => {
-      const res = await axiosSecure.get("/funds/stats");
-      return res.data.map(item => ({
-        name: `${item._id.month}/${item._id.year}`,
-        total: item.totalAmount,
+      const res = await axiosSecure.get("/funds/stats"); // [{ _id: {year, month}, totalAmount }]
+      return (res.data || []).map((item) => ({
+        name: monthLabel(item._id?.year, item._id?.month),
+        total: item.totalAmount || 0,
       }));
     },
   });
 
-  if (statsLoading || donationsLoading || myDonationsLoading || fundStatsLoading) {
-    return <p className="text-center text-red-500 font-bold">Loading dashboard...</p>;
-  }
+  // ========== Donor: my donations (up to 50), pie + recent list ==========
+  const { data: myDonationsData, isLoading: myDonationsLoading } = useQuery({
+    queryKey: ["myDonations-50", user?.email],
+    enabled: isDonor && !!user?.email,
+    queryFn: async () => {
+      // Server auto-filters to current donor; we just fetch up to 50
+      const res = await axiosSecure.get(`/donations`, { params: { limit: 50, page: 1 } });
+      return res.data; // { data, total, page }
+    },
+  });
 
-  //  Get totals for cards
+  const donorPieData = useMemo(() => {
+    if (!isDonor) return [];
+    const list = myDonationsData?.data || [];
+    const counts = { pending: 0, inprogress: 0, done: 0, cancelled: 0 };
+    list.forEach((d) => (counts[d.status] = (counts[d.status] || 0) + 1));
+    return STATUS_ORDER.map((name) => ({
+      name,
+      value: counts[name] || 0,
+      fill: STATUS_COLORS[name],
+    }));
+  }, [isDonor, myDonationsData]);
+
+  const donorRecent = useMemo(() => {
+    const list = myDonationsData?.data || [];
+    return list.slice(0, 3);
+  }, [myDonationsData]);
+
+  const loading =
+    statsLoading || donationsLoading || fundStatsLoading || myDonationsLoading;
+
+  // Totals for cards
   const totalUsers = stats?.totalUsers || 0;
   const totalDonations = stats?.totalDonations || 0;
   const totalFunds = stats?.totalFunds || 0;
 
   return (
     <div className="space-y-8">
-      {/* ✅ Top Section with Back to Home Button */}
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Welcome, {user?.displayName || "User"}! 👋</h2>
-        <NavLink
-          to="/"
-          className="btn btn-outline flex items-center gap-2"
-        >
+        <h2 className="text-2xl font-bold">
+          Welcome, <span className="text-red-700">{user?.displayName || "User"}</span>! 👋
+        </h2>
+        <NavLink to="/" className="btn btn-outline flex items-center gap-2">
           <Home size={18} /> Go to Home
         </NavLink>
       </div>
 
-      {/*  Admin & Volunteer  top cards */}
-      {(role === "admin" || role === "volunteer") && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="bg-gray-50 p-6 rounded-lg shadow flex items-center gap-4">
-            <Users size={32} className="text-blue-600" />
+      {loading && (
+        <p className="text-center opacity-70">Loading dashboard…</p>
+      )}
+
+      {/* Stat cards (Admin/Volunteer) */}
+      {(isAdmin || isVolunteer) && !statsLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
+            <div className="rounded-xl p-3 bg-red-50 border border-red-100">
+              <Users size={24} className="text-red-600" />
+            </div>
             <div>
-              <h3 className="text-lg font-semibold">Total Users</h3>
-              <p className="text-2xl font-bold">{totalUsers}</p>
+              <h3 className="text-sm opacity-70">Total Users</h3>
+              <p className="text-2xl font-extrabold">{totalUsers.toLocaleString()}</p>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
-            <Droplet size={32} className="text-red-600" />
+            <div className="rounded-xl p-3 bg-red-50 border border-red-100">
+              <Droplet size={24} className="text-red-600" />
+            </div>
             <div>
-              <h3 className="text-lg font-semibold">Total Donations</h3>
-              <p className="text-2xl font-bold">{totalDonations}</p>
+              <h3 className="text-sm opacity-70">Donation Requests</h3>
+              <p className="text-2xl font-extrabold">{totalDonations.toLocaleString()}</p>
             </div>
           </div>
 
           <div className="bg-white p-6 rounded-lg shadow flex items-center gap-4">
-            <DollarSign size={32} className="text-green-600" />
+            <div className="rounded-xl p-3 bg-red-50 border border-red-100">
+              <DollarSign size={24} className="text-red-600" />
+            </div>
             <div>
-              <h3 className="text-lg font-semibold">Total Funds</h3>
-              <p className="text-2xl font-bold">${totalFunds.toFixed(2)}</p>
+              <h3 className="text-sm opacity-70">Total Funds</h3>
+              <p className="text-2xl font-extrabold">${Number(totalFunds || 0).toLocaleString()}</p>
             </div>
           </div>
         </div>
       )}
 
-      {/*  Charts Section (ADMIN) */}
-      {role === "admin" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10">
-          {/* Pie Chart */}
-          <div className="bg-gray-50 p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4 text-center">
-              Donation Requests by Status
-            </h3>
-            {donationStatsData.length === 0 ? (
-              <p className="text-center text-gray-500">No data available</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={donationStatsData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label
-                  >
-                    {donationStatsData.map((_, i) => (
-                      <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Left: Pie (Admin) or Donor mini pie */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4 text-center">
+            {isAdmin ? "Donation Requests by Status" : "My Requests by Status"}
+          </h3>
 
-          {/* Line Chart for Monthly Funds */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold mb-4 text-center">
-              Monthly Funds Trend
-            </h3>
-            {fundStatsData.length === 0 ? (
-              <p className="text-center text-gray-500">No data available</p>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Tooltip formatter={(val, name) => [val.toLocaleString(), name]} />
+                <Legend verticalAlign="bottom" height={24} />
+                <Pie
+                  data={isAdmin ? donationStatsData : donorPieData}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={100}
+                >
+                  {(isAdmin ? donationStatsData : donorPieData).map((seg, i) => (
+                    <Cell key={i} fill={seg.fill} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Right: Funds line (Admin/Volunteer) or Donor bar snapshot */}
+        <div className="bg-white p-6 rounded-lg shadow">
+          <h3 className="text-lg font-semibold mb-4 text-center">
+            {(isAdmin || isVolunteer) ? "Monthly Funds Trend" : "My Status Breakdown"}
+          </h3>
+
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              {(isAdmin || isVolunteer) ? (
                 <LineChart data={fundStatsData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Line type="monotone" dataKey="total" stroke="#82ca9d" />
+                  <Line type="monotone" dataKey="total" stroke="#ef4444" strokeWidth={2} />
                 </LineChart>
-              </ResponsiveContainer>
-            )}
+              ) : (
+                <BarChart data={[
+                  { name: "pending",    value: donorPieData.find(d => d.name === "pending")?.value || 0 },
+                  { name: "inprogress", value: donorPieData.find(d => d.name === "inprogress")?.value || 0 },
+                  { name: "done",       value: donorPieData.find(d => d.name === "done")?.value || 0 },
+                  { name: "cancelled",  value: donorPieData.find(d => d.name === "cancelled")?.value || 0 },
+                ]}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#ef4444" />
+                </BarChart>
+              )}
+            </ResponsiveContainer>
           </div>
         </div>
-      )}
+      </div>
 
-      {/*  Donor Recent Requests */}
-      {role === "donor" && myDonations.length > 0 && (
-        <div className="mt-8">
-          <h3 className="text-xl font-semibold mb-4">
-            Your Recent Donation Requests
-          </h3>
-          <table className="table w-full border rounded-lg">
-            <thead>
-              <tr>
-                <th>Recipient Name</th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Blood Group</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myDonations.map((donation) => (
-                <tr key={donation._id}>
-                  <td>{donation.recipientName}</td>
-                  <td>
-                    {donation.recipientDistrict}, {donation.recipientUpazila}
-                  </td>
-                  <td>{donation.donationDate}</td>
-                  <td>{donation.bloodGroup}</td>
-                  <td>{donation.status}</td>
+      {/* Donor recent table */}
+      {isDonor && (donorRecent?.length || 0) > 0 && (
+        <div className="bg-white p-6 rounded-lg shadow">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">Your Recent Donation Requests</h3>
+            <NavLink
+              to="/dashboard/my-donation-requests"
+              className="btn btn-outline btn-sm text-red-500 border-white"
+            >
+              View all
+            </NavLink>
+          </div>
+
+          <div className="mt-3 overflow-x-auto">
+            <table className="table w-full text-sm">
+              <thead>
+                <tr>
+                  <th>Recipient</th>
+                  <th>Location</th>
+                  <th>Date</th>
+                  <th>Blood</th>
+                  <th>Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <NavLink to="/dashboard/my-donation-requests" className="btn bg-red-700 text-white hover:bg-red-800 mt-4">
-  View All Requests
-</NavLink>
+              </thead>
+              <tbody>
+                {donorRecent.map((d) => (
+                  <tr key={d._id}>
+                    <td>{d.recipientName}</td>
+                    <td>{d.recipientDistrict}, {d.recipientUpazila}</td>
+                    <td>
+                      {d.donationDate}
+                      <span className="block text-xs opacity-70">{d.donationTime}</span>
+                    </td>
+                    <td>{d.bloodGroup}</td>
+                    <td>
+                      <span
+                        className="badge"
+                        style={{ backgroundColor: `${STATUS_COLORS[d.status]}22`, color: "#111", borderColor: "transparent" }}
+                      >
+                        {d.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {donorRecent.length === 0 && (
+              <p className="opacity-70 text-sm mt-2">No recent requests.</p>
+            )}
+          </div>
         </div>
       )}
     </div>
