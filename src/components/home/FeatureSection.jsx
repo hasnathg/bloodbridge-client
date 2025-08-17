@@ -29,7 +29,7 @@ const FeatureSection = () => {
     return (
         
            <section className="py-16 bg-gradient-to-r from-warm-white to-warm-white rounded-2xl">
-  <div className="container mx-auto text-center">
+  <div className="max-w-screen-xl mx-auto px-4 md:px-6 text-center">
     <h2 className="text-3xl font-bold text-red-700 mb-8">
       Why Choose BloodBridge?
     </h2>
