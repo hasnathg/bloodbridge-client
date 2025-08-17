@@ -78,7 +78,7 @@ const AllDonations = () => {
 
   const totalPages = Math.ceil(total / limit);
     return (
-       <div className="p-4 bg-white shadow rounded">
+       <div className="p-4 bg-gray-50 shadow rounded">
       <h2 className="text-2xl font-semibold mb-4">All Donation Requests</h2>
 
       <div className="flex items-center justify-between mb-4">

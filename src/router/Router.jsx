@@ -26,6 +26,7 @@ import AboutUs from "../pages/public/AboutUs";
 import Contact from "../pages/public/Contact";
 import Job from "../pages/public/Job";
 import PrivateLayout from "../layouts/PrivateLayout";
+import ErrorPage from "../pages/public/ErrorPage";
 
 
 
@@ -109,5 +110,9 @@ export const router = createBrowserRouter([
     { path: "funding", element: <FundingPage /> },
     
   ],
+},
+{
+  path: "*",
+  element: <ErrorPage />,
 }
 ]);

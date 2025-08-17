@@ -23,7 +23,7 @@ const BlogDetails = () => {
   if (!blog) return <p className="text-center">Blog not found.</p>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6 bg-gray-50">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 lg:px-8 py-8 space-y-6 bg-gray-50 rounded-xl">
       <Link
         to="/blog"
         className="inline-block text-red-800 hover:underline text-sm font-medium mb-4"

@@ -51,10 +51,10 @@ const AllUsers = () => {
   if (isLoading) return <LoadingSpinner />;
 
     return (
-         <div className="p-4 space-y-6">
+         <div className="p-4 space-y-6 bg-white">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">All Users</h2>
-        <div>
+        <div >
           <select
             value={filter}
             onChange={(e) => {
@@ -71,7 +71,7 @@ const AllUsers = () => {
       </div>
 
       {/*  Desktop Table */}
-      <div className="hidden md:block overflow-x-auto bg-white rounded shadow">
+      <div className="hidden md:block overflow-x-auto bg-gray-50 rounded shadow">
         <table className="table w-full text-sm">
           <thead>
             <tr>
@@ -190,7 +190,7 @@ const AllUsers = () => {
         {users.map((u) => (
           <div
             key={u._id}
-            className="bg-white p-4 rounded shadow flex items-center justify-between"
+            className="bg-gray-50 p-4 rounded shadow flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
               <img
