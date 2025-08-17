@@ -2,6 +2,8 @@
 @import "tailwindcss";
 @plugin "daisyui";
 
+:root { color-scheme: light; }  
+
 .font-urbanist {
   font-family: "Urbanist", sans-serif;
   font-optical-sizing: auto;

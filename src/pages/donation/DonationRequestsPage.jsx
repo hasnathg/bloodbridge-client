@@ -1,31 +1,252 @@
+// import axios from 'axios';
+// import React, { useCallback, useEffect, useState } from 'react';
+// import LoadingSpinner from '../../components/spinner/LoadingSpinner';
+// import { Link } from 'react-router';
+
+// const getStatusColor = (status) => {
+//   switch (status) {
+//     case "pending":
+//       return "badge-warning";
+//     case "inprogress":
+//       return "badge-info";
+//     case "done":
+//       return "badge-success";
+//     case "cancelled":
+//       return "badge-error";
+//     default:
+//       return "badge-ghost";
+//   }
+// };
+
+// const DonationRequestsPage = () => {
+//   const [requests, setRequests] = useState([]);
+//   const [loading, setLoading] = useState(false);
+//   const [page, setPage] = useState(1);
+//   const [total, setTotal] = useState(0);
+//   const limit = 6;
+
+  
+//   const fetchDonationRequests = useCallback(async () => {
+//     setLoading(true);
+//     try {
+//       const { data } = await axios.get(
+//         `${import.meta.env.VITE_API_URL}/donations/public`,
+//         { params: { page, limit } }
+//       );
+//       setRequests(data.data || []);
+//       setTotal(data.total || 0);
+//     } catch (err) {
+//       console.error("Error fetching donation requests:", err);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, [page, limit]);
+
+//   useEffect(() => {
+//     fetchDonationRequests();
+//   }, [fetchDonationRequests]);
+//   const totalPages = Math.ceil(total / limit);
+
+//   return (
+//     <div className="max-w-7xl mx-auto p-4 bg-gray-50 rounded shadow mt-6">
+//       <h2 className="text-2xl font-bold mb-4 text-center">
+//         Pending Blood Donation Requests
+//       </h2>
+
+//       {loading ? (
+//         <LoadingSpinner />
+//       ) : requests.length === 0 ? (
+//         <p className="text-center text-gray-500">No pending donation requests found.</p>
+//       ) : (
+//         <>
+//           {/*  Table for large screens */}
+//           <div className="hidden md:block overflow-x-auto">
+//             <table className="table w-full text-sm">
+//               <thead>
+//                 <tr>
+//                   <th>Recipient</th>
+//                   <th>Location</th>
+//                   <th>Blood Group</th>
+//                   <th>Date</th>
+//                   <th>Status</th>
+//                   <th className="text-right">Actions</th>
+//                 </tr>
+//               </thead>
+//               <tbody>
+//                 {requests.map((req) => (
+//                   <tr key={req._id}>
+//                     <td>{req.recipientName}</td>
+//                     <td>
+//                       {req.recipientDistrict}, {req.recipientUpazila}
+//                     </td>
+//                     <td>{req.bloodGroup}</td>
+//                     <td>
+//                       {req.donationDate}
+//                       <br />
+//                       <span className="text-xs">{req.donationTime}</span>
+//                     </td>
+//                     <td>
+//                       <span className={`badge ${getStatusColor(req.status)}`}>
+//                         {req.status}
+//                       </span>
+//                     </td>
+//                     <td className="text-right">
+//                       <Link
+//                         to={`/donation-request/${req._id}`}
+//                         className="btn btn-sm  bg-red-700 text-white hover:bg-red-800"
+//                       >
+//                         View Details
+//                       </Link>
+//                     </td>
+//                   </tr>
+//                 ))}
+//               </tbody>
+//             </table>
+//           </div>
+
+//           {/*  Card layout for mobile screens */}
+//           <div className="md:hidden space-y-4">
+//             {requests.map((req) => (
+//               <div
+//                 key={req._id}
+//                 className="bg-gray-50 p-4 rounded shadow border flex flex-col gap-2"
+//               >
+//                 <p>
+//                   <strong>Recipient:</strong> {req.recipientName}
+//                 </p>
+//                 <p>
+//                   <strong>Location:</strong> {req.recipientDistrict},{" "}
+//                   {req.recipientUpazila}
+//                 </p>
+//                 <p>
+//                   <strong>Blood Group:</strong> {req.bloodGroup}
+//                 </p>
+//                 <p>
+//                   <strong>Date:</strong> {req.donationDate} at {req.donationTime}
+//                 </p>
+//                 <p>
+//                   <strong>Status:</strong>{" "}
+//                   <span className={`badge ${getStatusColor(req.status)}`}>
+//                     {req.status}
+//                   </span>
+//                 </p>
+//                 <Link
+//                   to={`/donation-request/${req._id}`}
+//                   className="btn bg-red-700 text-white hover:bg-red-800 btn-sm mt-2"
+//                 >
+//                   View Details
+//                 </Link>
+//               </div>
+//             ))}
+//           </div>
+
+//           {/*  Pagination */}
+//           {totalPages > 1 && (
+//             <div className="flex justify-center gap-2 mt-6">
+//               {[...Array(totalPages)].map((_, idx) => (
+//                 <button
+//                   key={idx}
+//                   onClick={() => setPage(idx + 1)}
+//                   className={`btn btn-sm ${
+//                     page === idx + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
+//                   }`}
+//                 >
+//                   {idx + 1}
+//                 </button>
+//               ))}
+//             </div>
+//           )}
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+// export default DonationRequestsPage;
 import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import LoadingSpinner from '../../components/spinner/LoadingSpinner';
 import { Link } from 'react-router';
 
+/* ---------- helpers ---------- */
+
+// status → badge class
 const getStatusColor = (status) => {
   switch (status) {
-    case "pending":
-      return "badge-warning";
-    case "inprogress":
-      return "badge-info";
-    case "done":
-      return "badge-success";
-    case "cancelled":
-      return "badge-error";
-    default:
-      return "badge-ghost";
+    case "pending":    return "badge-warning";
+    case "inprogress": return "badge-info";
+    case "done":       return "badge-success";
+    case "cancelled":  return "badge-error";
+    default:           return "badge-ghost";
   }
 };
+
+// Parse "YYYY-MM-DD" OR "DD/MM/YYYY" (fallback to Date(...))
+function parseDateOnly(str) {
+  if (!str) return null;
+
+  // 1) ISO: 2025-08-17
+  const iso = /^(\d{4})-(\d{2})-(\d{2})$/.exec(str);
+  if (iso) {
+    const [, y, m, d] = iso;
+    return new Date(Number(y), Number(m) - 1, Number(d));
+  }
+
+  // 2) Common local: 17/08/2025 (assume DD/MM/YYYY)
+  const dmy = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(str);
+  if (dmy) {
+    const [, d, m, y] = dmy;
+    return new Date(Number(y), Number(m) - 1, Number(d));
+  }
+
+  // 3) Fallback
+  const maybe = new Date(str);
+  return isNaN(maybe.getTime()) ? null : maybe;
+}
+
+// Build a timestamp from donationDate + donationTime; fallback to createdAt; else 0
+function toTimestamp(item) {
+  // Try date only first
+  const date = parseDateOnly(item?.donationDate);
+  let hours = 0, minutes = 0;
+
+  if (item?.donationTime) {
+    const tm = /^(\d{1,2}):(\d{2})/.exec(item.donationTime);
+    if (tm) {
+      hours = Number(tm[1]);
+      minutes = Number(tm[2]);
+    }
+  }
+
+  if (date) {
+    date.setHours(hours, minutes, 0, 0);
+    return date.getTime();
+  }
+
+  // Fallback to createdAt if present
+  if (item?.createdAt) {
+    const c = new Date(item.createdAt);
+    if (!isNaN(c.getTime())) return c.getTime();
+  }
+
+  // Last resort
+  return 0;
+}
+
+/* ---------- component ---------- */
 
 const DonationRequestsPage = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // pagination
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const limit = 6;
 
-  
+  // sorting controls
+  const [dateSort, setDateSort] = useState("date_desc"); // 'date_desc' | 'date_asc'
+  const [bloodSort, setBloodSort] = useState("none");     // 'none' | 'az' | 'za'
+
   const fetchDonationRequests = useCallback(async () => {
     setLoading(true);
     try {
@@ -33,33 +254,85 @@ const DonationRequestsPage = () => {
         `${import.meta.env.VITE_API_URL}/donations/public`,
         { params: { page, limit } }
       );
-      setRequests(data.data || []);
-      setTotal(data.total || 0);
+      setRequests(Array.isArray(data?.data) ? data.data : []);
+      setTotal(Number(data?.total || 0));
     } catch (err) {
       console.error("Error fetching donation requests:", err);
     } finally {
       setLoading(false);
     }
-  }, [page, limit]);
+  }, [page]);
 
   useEffect(() => {
     fetchDonationRequests();
   }, [fetchDonationRequests]);
+
   const totalPages = Math.ceil(total / limit);
+
+  // Stable, reliable sort combining date (primary) then blood group (secondary)
+  const sorted = useMemo(() => {
+    const copy = [...requests];
+
+    copy.sort((a, b) => {
+      // primary: date/time (or createdAt)
+      const ta = toTimestamp(a);
+      const tb = toTimestamp(b);
+      const diff = dateSort === "date_desc" ? tb - ta : ta - tb;
+      if (diff !== 0) return diff;
+
+      // secondary: blood group (lexical is fine for A+/AB+/…)
+      if (bloodSort === "az") {
+        return (a.bloodGroup || "").localeCompare(b.bloodGroup || "");
+      }
+      if (bloodSort === "za") {
+        return (b.bloodGroup || "").localeCompare(a.bloodGroup || "");
+      }
+      return 0;
+    });
+
+    return copy;
+  }, [requests, dateSort, bloodSort]);
 
   return (
     <div className="max-w-7xl mx-auto p-4 bg-gray-50 rounded shadow mt-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Pending Blood Donation Requests
-      </h2>
+      {/* Header + Sort controls */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <h2 className="text-2xl font-bold text-center md:text-left flex-1">
+          Pending Blood Donation Requests
+        </h2>
+
+        {/* Sort controls */}
+        <div className="flex items-center justify-center md:justify-end gap-2">
+          <label className="text-sm opacity-70">Sort date:</label>
+          <select
+            className="select select-bordered select-sm"
+            value={dateSort}
+            onChange={(e) => setDateSort(e.target.value)}
+          >
+            <option value="date_desc">Newest</option>
+            <option value="date_asc">Oldest</option>
+          </select>
+
+          <label className="text-sm opacity-70 ml-2">Blood group:</label>
+          <select
+            className="select select-bordered select-sm"
+            value={bloodSort}
+            onChange={(e) => setBloodSort(e.target.value)}
+          >
+            <option value="none">None</option>
+            <option value="az">A → Z</option>
+            <option value="za">Z → A</option>
+          </select>
+        </div>
+      </div>
 
       {loading ? (
         <LoadingSpinner />
-      ) : requests.length === 0 ? (
+      ) : sorted.length === 0 ? (
         <p className="text-center text-gray-500">No pending donation requests found.</p>
       ) : (
         <>
-          {/*  Table for large screens */}
+          {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
             <table className="table w-full text-sm">
               <thead>
@@ -73,12 +346,10 @@ const DonationRequestsPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {requests.map((req) => (
+                {sorted.map((req) => (
                   <tr key={req._id}>
                     <td>{req.recipientName}</td>
-                    <td>
-                      {req.recipientDistrict}, {req.recipientUpazila}
-                    </td>
+                    <td>{req.recipientDistrict}, {req.recipientUpazila}</td>
                     <td>{req.bloodGroup}</td>
                     <td>
                       {req.donationDate}
@@ -93,7 +364,7 @@ const DonationRequestsPage = () => {
                     <td className="text-right">
                       <Link
                         to={`/donation-request/${req._id}`}
-                        className="btn btn-sm  bg-red-700 text-white hover:bg-red-800"
+                        className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       >
                         View Details
                       </Link>
@@ -104,31 +375,20 @@ const DonationRequestsPage = () => {
             </table>
           </div>
 
-          {/*  Card layout for mobile screens */}
+          {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
-            {requests.map((req) => (
+            {sorted.map((req) => (
               <div
                 key={req._id}
                 className="bg-gray-50 p-4 rounded shadow border flex flex-col gap-2"
               >
-                <p>
-                  <strong>Recipient:</strong> {req.recipientName}
-                </p>
-                <p>
-                  <strong>Location:</strong> {req.recipientDistrict},{" "}
-                  {req.recipientUpazila}
-                </p>
-                <p>
-                  <strong>Blood Group:</strong> {req.bloodGroup}
-                </p>
-                <p>
-                  <strong>Date:</strong> {req.donationDate} at {req.donationTime}
-                </p>
+                <p><strong>Recipient:</strong> {req.recipientName}</p>
+                <p><strong>Location:</strong> {req.recipientDistrict}, {req.recipientUpazila}</p>
+                <p><strong>Blood Group:</strong> {req.bloodGroup}</p>
+                <p><strong>Date:</strong> {req.donationDate} at {req.donationTime}</p>
                 <p>
                   <strong>Status:</strong>{" "}
-                  <span className={`badge ${getStatusColor(req.status)}`}>
-                    {req.status}
-                  </span>
+                  <span className={`badge ${getStatusColor(req.status)}`}>{req.status}</span>
                 </p>
                 <Link
                   to={`/donation-request/${req._id}`}
@@ -140,10 +400,10 @@ const DonationRequestsPage = () => {
             ))}
           </div>
 
-          {/*  Pagination */}
+          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center gap-2 mt-6">
-              {[...Array(totalPages)].map((_, idx) => (
+              {Array.from({ length: totalPages }).map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setPage(idx + 1)}
@@ -161,4 +421,6 @@ const DonationRequestsPage = () => {
     </div>
   );
 };
+
 export default DonationRequestsPage;
+
