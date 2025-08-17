@@ -41,18 +41,28 @@ export default function RecentRequests() {
     <section className="py-16">
       {/* keep distinct soft background if you liked it; remove bg-red-50/60 if you want plain */}
       <div className="max-w-screen-xl mx-auto px-4 md:px-6 rounded-2xl bg-red-50/60">
-        <div className="flex items-end justify-between gap-4 pt-10 px-4 md:px-6">
-          <div>
-            <h2 className="text-3xl font-bold text-red-700 text-center">Recent Donation Requests</h2>
-            <p className="opacity-80 text-sm mt-1 text-center">Latest public requests that need a donor.</p>
-          </div>
-          <NavLink
-            to="/donation-request"
-            className="btn btn-outline btn-sm text-lg text-red-500 border-white"
-          >
-            View all
-          </NavLink>
-        </div>
+        <div className="pt-10 px-4 md:px-6">
+  <div className="grid grid-cols-1 md:grid-cols-3 items-center gap-4">
+    {/* left spacer on desktop */}
+    <div className="hidden md:block" />
+
+    {/* centered heading */}
+    <div className="text-center">
+      <h2 className="text-3xl font-bold text-red-700">Recent Donation Requests</h2>
+      <p className="opacity-80 text-sm mt-1">Latest public requests that need a donor.</p>
+    </div>
+
+    {/* button: centered on mobile, right-aligned on desktop */}
+    <div className="justify-self-center md:justify-self-end">
+      <NavLink
+        to="/donation-request"
+        className="btn btn-outline btn-sm text-lg text-red-500 border-white"
+      >
+        View all
+      </NavLink>
+    </div>
+  </div>
+</div>
 
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4 md:px-6 pb-10">
           {isLoading ? (

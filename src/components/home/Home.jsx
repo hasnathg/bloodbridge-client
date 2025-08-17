@@ -7,7 +7,8 @@ import ContactUs from './ContactUs';
 import WhyDonate from './WhyDonate';
 import RecentRequests from './RecentRequests';
 import HowItWorks from './HowItWorks';
-import ImpactStats from './ImpactStats';
+import SuccessStory from './SuccessStory';
+import CommunityCTA from './CommunityCTA';
 
 const Home = () => {
     return (
@@ -17,7 +18,8 @@ const Home = () => {
             <FeatureSection></FeatureSection>
             <RecentRequests></RecentRequests>
             <HowItWorks></HowItWorks>
-            <ImpactStats></ImpactStats>
+            <CommunityCTA></CommunityCTA>
+            <SuccessStory></SuccessStory>
             <ContactUs></ContactUs>
             
         </div>
