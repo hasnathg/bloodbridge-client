@@ -94,11 +94,11 @@ const Profile = () => {
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold">My Profile</h2>
         {!editMode ? (
-          <button onClick={() => setEditMode(true)} className="btn btn-sm btn-accent text-black font-bold">
+          <button onClick={() => setEditMode(true)} className="btn btn-sm bg-red-700 text-white hover:bg-red-800">
             Edit
           </button>
         ) : (
-          <button onClick={handleSubmit(onSubmit)} className="btn btn-sm btn-success font-bold text-black">
+          <button onClick={handleSubmit(onSubmit)} className="btn btn-sm btn btn-outline  text-red-500 border-white">
             Save
           </button>
         )}

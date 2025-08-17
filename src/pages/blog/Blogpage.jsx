@@ -102,7 +102,7 @@ const Blogpage = () => {
               key={idx}
               onClick={() => setPage(idx + 1)}
               className={`btn btn-sm ${
-                page === idx + 1 ? "btn-primary" : "btn-outline"
+                page === idx + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
               }`}
             >
               {idx + 1}

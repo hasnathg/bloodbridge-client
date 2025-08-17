@@ -205,7 +205,7 @@ const DashboardHome = () => {
               ))}
             </tbody>
           </table>
-          <NavLink to="/dashboard/my-donation-requests" className="btn mt-4">
+          <NavLink to="/dashboard/my-donation-requests" className="btn bg-red-700 text-white hover:bg-red-800 mt-4">
   View All Requests
 </NavLink>
         </div>

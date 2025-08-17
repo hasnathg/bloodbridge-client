@@ -112,7 +112,7 @@ const AllUsers = () => {
                   <div className="dropdown dropdown-left">
                     <button
                       tabIndex={0}
-                      className="btn btn-ghost btn-sm"
+                      className="btn bg-red-700 text-white hover:bg-red-800 btn-sm"
                       title="Actions"
                     >
                       <MoreHorizontal size={18} />
@@ -207,7 +207,7 @@ const AllUsers = () => {
               </div>
             </div>
             <div className="dropdown dropdown-left">
-              <button tabIndex={0} className="btn btn-ghost btn-sm">
+              <button tabIndex={0} className="btn bg-red-700 text-white hover:bg-red-800 btn-sm">
                 <MoreHorizontal size={18} />
               </button>
               <ul
@@ -283,7 +283,7 @@ const AllUsers = () => {
               key={idx}
               onClick={() => setPage(idx + 1)}
               className={`btn btn-sm ${
-                page === idx + 1 ? "btn-primary" : "btn-outline"
+                page === idx + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
               }`}
             >
               {idx + 1}

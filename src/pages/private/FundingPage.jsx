@@ -73,7 +73,7 @@ const PaymentForm = ({ amount, onSuccess, onClose }) => {
       <button
         type="submit"
         disabled={!stripe || isProcessing}
-        className="btn btn-accent text-black w-full"
+        className="btn bg-red-700 text-white hover:bg-red-800 w-full"
       >
         {isProcessing ? "Processing..." : `Pay $${amount}`}
       </button>
@@ -110,7 +110,7 @@ const FundingPage = () => {
      <div className="max-w-4xl mx-auto bg-gray-50 p-6 rounded shadow mt-8">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Funding Page</h2>
-        <button onClick={() => setIsOpen(true)} className="btn btn-active btn-accent text-black">
+        <button onClick={() => setIsOpen(true)} className="btn btn-active bg-red-700 text-white hover:bg-red-800">
           Give Fund
         </button>
       </div>
@@ -155,7 +155,7 @@ const FundingPage = () => {
               key={i}
               onClick={() => setPage(i + 1)}
               className={`btn btn-sm ${
-                page === i + 1 ? "btn-active btn-accent" : "btn-outline"
+                page === i + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
               }`}
             >
               {i + 1}
@@ -197,7 +197,7 @@ const FundingPage = () => {
           />
         </Elements>
         <button
-          className="btn btn-sm btn-error w-full mt-3"
+          className="btn btn-sm bg-red-700 text-white hover:bg-red-800 w-full mt-3"
           onClick={() => setIsOpen(false)}
         >
           Cancel

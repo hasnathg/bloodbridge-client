@@ -75,7 +75,7 @@ const Job = () => {
   <div className="mt-4">
     <button
       onClick={() => handleApplyClick(job)}
-      className="btn btn-accent w-full text-black"
+      className="btn bg-red-700 text-white hover:bg-red-800 w-full"
     >
       Apply Now
     </button>
@@ -112,14 +112,14 @@ const Job = () => {
               ></textarea>
               <button
                 type="submit"
-                className="btn btn-accent w-full text-black"
+                className="btn btn-outline text-lg text-red-500 border-white w-full"
               >
                 Submit Application
               </button>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="btn btn-secondary w-full"
+                className="btn bg-red-700 text-white hover:bg-red-800 w-full"
               >
                 Cancel
               </button>

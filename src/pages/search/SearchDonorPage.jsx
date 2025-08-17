@@ -197,10 +197,10 @@ const SearchDonorPage = () => {
         </select>
 
         <div className="flex gap-2">
-          <button onClick={handleSearch} className="btn btn-accent text-black">
+          <button onClick={handleSearch} className="btn bg-red-700 text-white hover:bg-red-800">
             Search
           </button>
-          <button onClick={resetFilters} className="btn btn-secondary">
+          <button onClick={resetFilters} className="btn btn-outline  text-red-500 border-white">
             Reset
           </button>
         </div>
@@ -214,7 +214,7 @@ const SearchDonorPage = () => {
           <>
             <div className="flex justify-between items-center mb-4">
               <p className="font-semibold">{total} donors found</p>
-              <button onClick={downloadPDF} className="btn btn-success btn-sm">
+              <button onClick={downloadPDF} className="btn bg-red-700 text-white hover:bg-red-800 btn-sm">
                 Download PDF
               </button>
             </div>
@@ -254,7 +254,7 @@ const SearchDonorPage = () => {
                       fetchDonations();
                     }}
                     className={`btn btn-sm ${
-                      page === idx + 1 ? "btn-accent" : "btn-outline"
+                      page === idx + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
                     }`}
                   >
                     {idx + 1}

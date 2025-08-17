@@ -101,7 +101,7 @@ const Register = () => {
           validate: (value) => value === password || "Passwords do not match",
         })} className="input input-bordered w-full" />
 
-        <button type="submit" className="btn btn-accent w-full" disabled={loading}>
+        <button type="submit" className="btn bg-red-700 text-white hover:bg-red-800 w-full" disabled={loading}>
           {loading ? "Registering..." : "Register"}
         </button>
         {errMsg && <p className="text-red-500 text-center">{errMsg}</p>}

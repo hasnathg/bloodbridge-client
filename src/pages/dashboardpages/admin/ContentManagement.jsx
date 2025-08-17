@@ -106,7 +106,7 @@ const ContentManagement = () => {
                 <div className="flex gap-2">
                   {blog.status === "draft" ? (
                     <button
-                      className="btn btn-sm btn-success"
+                      className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       onClick={() =>
                         updateStatus.mutate({ id: blog._id, status: "published" })
                       }
@@ -115,7 +115,7 @@ const ContentManagement = () => {
                     </button>
                   ) : (
                     <button
-                      className="btn btn-sm btn-warning"
+                      className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       onClick={() =>
                         updateStatus.mutate({ id: blog._id, status: "draft" })
                       }
@@ -124,7 +124,7 @@ const ContentManagement = () => {
                     </button>
                   )}
                   <button
-                    className="btn btn-sm btn-error"
+                    className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                     onClick={() => deleteBlog.mutate(blog._id)}
                   >
                     Delete

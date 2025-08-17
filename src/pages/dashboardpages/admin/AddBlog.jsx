@@ -72,7 +72,7 @@ const AddBlog = () => {
         <label className="font-medium">Content</label>
         <JoditEditor value={content} onBlur={(newContent) => setContent(newContent)} />
 
-        <button type="submit" className="btn btn-primary">
+        <button type="submit" className=" btn bg-red-700 text-white hover:bg-red-800">
           Create Blog
         </button>
       </form>

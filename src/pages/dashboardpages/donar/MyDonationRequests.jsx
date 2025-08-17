@@ -135,19 +135,19 @@ const totalPages = Math.ceil((data?.total || 0) / limit);
                     <div className="flex flex-row flex-wrap items-center gap-2 justify-end max-w-[300px]">
                       <Link
                         to={`/dashboard/edit-donation/${req._id}`}
-                        className="btn btn-sm"
+                        className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       >
                         Edit
                       </Link>
                       <button
                         onClick={() => handleDelete(req._id)}
-                        className="btn btn-sm btn-error"
+                        className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       >
                         Delete
                       </button>
                       <Link
                         to={`/donation-request/${req._id}`}
-                        className="btn btn-sm btn-info"
+                        className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                       >
                         View
                       </Link>
@@ -158,7 +158,7 @@ const totalPages = Math.ceil((data?.total || 0) / limit);
                             onClick={() =>
                               handleStatusUpdate(req._id, 'done')
                             }
-                            className="btn btn-sm btn-success"
+                            className="btn btn-sm bg-red-700 text-white hover:bg-red-800"
                           >
                             Mark as Done
                           </button>
@@ -166,7 +166,7 @@ const totalPages = Math.ceil((data?.total || 0) / limit);
                             onClick={() =>
                               handleStatusUpdate(req._id, 'cancelled')
                             }
-                            className="btn btn-sm btn-warning"
+                            className="btn-sm btn btn-outline  text-red-500 border-white"
                           >
                             Cancel
                           </button>
@@ -182,17 +182,17 @@ const totalPages = Math.ceil((data?.total || 0) / limit);
         <div className="flex justify-center mt-6 gap-2">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-              className="btn btn-sm"
+              className="btn btn-outline  text-red-500 border-white btn-sm"
               disabled={page === 1}
             >
               Prev
             </button>
-            <span className="btn btn-sm btn-ghost cursor-default">
+            <span className="btn btn-sm  bg-red-700 text-white hover:bg-red-800 cursor-default">
               Page {page} of {totalPages}
             </span>
             <button
               onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-              className="btn btn-sm"
+              className="btn bg-red-700 text-white hover:bg-red-800 btn-sm"
               disabled={page >= totalPages}
             >
               Next

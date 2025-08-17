@@ -68,7 +68,7 @@ const Login = () => {
         {/* Submit */}
         <button
           type="submit"
-          className="btn btn-primary w-full"
+          className="btn bg-red-700 text-white hover:bg-red-800 w-full"
           disabled={loading}
         >
           {loading ? "Logging in..." : "Login"}
@@ -78,7 +78,7 @@ const Login = () => {
 
         <p className="text-center mt-4">
           Don’t have an account?{" "}
-          <NavLink to="/register" className="text-blue-500">
+          <NavLink to="/register" className="text-red-600">
             Register
           </NavLink>
         </p>

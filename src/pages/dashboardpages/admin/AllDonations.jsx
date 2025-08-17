@@ -143,17 +143,17 @@ const AllDonations = () => {
                     <td className="text-right">
                      <div className="flex flex-wrap gap-2 justify-end">
                        {/* View */}
-                      <Link to={`/donation-request/${req._id}`} className="btn btn-xs btn-info">
+                      <Link to={`/donation-request/${req._id}`} className="btn btn-xs bg-red-700 text-white hover:bg-red-800">
                         View
                       </Link>
 
                       {/* Edit/Delete for admin only */}
                       {role === 'admin' && (
                         <>
-                          <Link to={`/dashboard/edit-donation/${req._id}`} className="btn btn-xs">
+                          <Link to={`/dashboard/edit-donation/${req._id}`} className="btn btn-xs bg-red-700 text-white hover:bg-red-800">
                             Edit
                           </Link>
-                          <button onClick={() => handleDelete(req._id)} className="btn btn-xs btn-error">
+                          <button onClick={() => handleDelete(req._id)} className="btn btn-xs btn-outline  text-red-500 border-white">
                             Delete
                           </button>
                         </>
@@ -164,13 +164,13 @@ const AllDonations = () => {
                         <>
                           <button
                             onClick={() => handleStatusUpdate(req._id, 'done', req)}
-                            className="btn btn-xs btn-success"
+                            className="btn btn-xs  btn-outline  text-red-500 border-white"
                           >
                             Done
                           </button>
                           <button
                             onClick={() => handleStatusUpdate(req._id, 'cancelled',req)}
-                            className="btn btn-xs btn-warning"
+                            className="btn btn-xs bg-red-700 text-white hover:bg-red-800"
                           >
                             Cancel
                           </button>
@@ -191,7 +191,7 @@ const AllDonations = () => {
                 <button
                   key={idx}
                   onClick={() => setPage(idx + 1)}
-                  className={`btn btn-sm ${currentPage === idx + 1 ? 'btn-active btn-accent' : 'btn-outline'}`}
+                  className={`btn btn-sm ${currentPage === idx + 1 ? 'btn-active btn bg-red-700 text-white hover:bg-red-800' : 'btn-outline'}`}
                 >
                   {idx + 1}
                 </button>

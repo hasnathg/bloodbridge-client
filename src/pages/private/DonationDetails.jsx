@@ -203,13 +203,13 @@ const DonationDetails = () =>   {
 
             <div className="flex justify-end gap-2 mt-6">
               <button
-                className="btn btn-secondary"
+                className="btn btn-outline text-red-500 border-white"
                 onClick={() => setIsModalOpen(false)}
               >
                 Cancel
               </button>
               <button
-                className="btn btn-primary"
+                className="btn bg-red-700 text-white hover:bg-red-800"
                 onClick={() => confirmDonationMutation.mutate()}
                 disabled={confirmDonationMutation.isLoading}
               >

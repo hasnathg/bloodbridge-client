@@ -184,7 +184,7 @@ const CreateDonationRequest = () =>  {
           rows={4}
         ></textarea>
 
-        <button type="submit" className="btn btn-accent text-black w-full">
+        <button type="submit" className="btn bg-red-700 text-white hover:bg-red-800 w-full">
           Request
         </button>
       </form>

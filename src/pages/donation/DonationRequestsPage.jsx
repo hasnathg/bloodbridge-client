@@ -93,7 +93,7 @@ const DonationRequestsPage = () => {
                     <td className="text-right">
                       <Link
                         to={`/donation-request/${req._id}`}
-                        className="btn btn-sm btn-accent text-black"
+                        className="btn btn-sm  bg-red-700 text-white hover:bg-red-800"
                       >
                         View Details
                       </Link>
@@ -132,7 +132,7 @@ const DonationRequestsPage = () => {
                 </p>
                 <Link
                   to={`/donation-request/${req._id}`}
-                  className="btn btn-accent btn-sm mt-2"
+                  className="btn bg-red-700 text-white hover:bg-red-800 btn-sm mt-2"
                 >
                   View Details
                 </Link>
@@ -148,7 +148,7 @@ const DonationRequestsPage = () => {
                   key={idx}
                   onClick={() => setPage(idx + 1)}
                   className={`btn btn-sm ${
-                    page === idx + 1 ? "btn-accent" : "btn-outline"
+                    page === idx + 1 ? "btn bg-red-700 text-white hover:bg-red-800" : "btn-outline"
                   }`}
                 >
                   {idx + 1}
